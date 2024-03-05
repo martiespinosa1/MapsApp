@@ -9,6 +9,9 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
@@ -16,7 +19,6 @@ fun Map() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
     ) {
     val itb = LatLng(41.4534265, 2.1837151)
     val cameraPositionState = rememberCameraPositionState {
@@ -24,7 +26,9 @@ fun Map() {
     }
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState
+        cameraPositionState = cameraPositionState,
+        properties = MapProperties(mapType = MapType.HYBRID),
+        //uiSettings =
     )
     }
 }
