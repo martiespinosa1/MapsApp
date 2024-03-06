@@ -31,8 +31,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.mapsapp.MyDrawer
+import com.example.mapsapp.MyScaffold
 import com.example.mapsapp.navigation.Routes
+import com.example.mapsapp.viewmodel.ViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -45,13 +49,14 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 
 @Composable
-fun Map(navController: NavController) {
+fun Map(myViewModel: ViewModel, navController: NavController) {
     val markers = remember { mutableStateListOf<MarkerInfo>() }
     val (showPopup, setShowPopup) = remember { mutableStateOf(false) }
     val (popupCoordinates, setPopupCoordinates) = remember { mutableStateOf(LatLng(0.0, 0.0)) }
 
     Box(
-        modifier = Modifier.fillMaxSize().zIndex(0f) // el scaffold sale por debajo del mapa
+        modifier = Modifier
+            .fillMaxSize()
     ) {
         val itb = LatLng(41.4534265, 2.1837151)
         val cameraPositionState = rememberCameraPositionState {
