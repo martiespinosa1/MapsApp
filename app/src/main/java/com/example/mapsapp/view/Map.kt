@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.mapsapp.navigation.Routes
 import com.google.android.gms.maps.model.CameraPosition
@@ -50,7 +51,7 @@ fun Map(navController: NavController) {
     val (popupCoordinates, setPopupCoordinates) = remember { mutableStateOf(LatLng(0.0, 0.0)) }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().zIndex(0f) // el scaffold sale por debajo del mapa
     ) {
         val itb = LatLng(41.4534265, 2.1837151)
         val cameraPositionState = rememberCameraPositionState {
