@@ -1,5 +1,7 @@
 package com.example.mapsapp.view
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,12 +15,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -37,6 +44,8 @@ import com.example.mapsapp.MyDrawer
 import com.example.mapsapp.MyScaffold
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.viewmodel.ViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -47,12 +56,12 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
-
 @Composable
 fun Map(myViewModel: ViewModel, navController: NavController) {
     val markers = remember { mutableStateListOf<MarkerInfo>() }
     val (showPopup, setShowPopup) = remember { mutableStateOf(false) }
     val (popupCoordinates, setPopupCoordinates) = remember { mutableStateOf(LatLng(0.0, 0.0)) }
+
 
     Box(
         modifier = Modifier
@@ -77,7 +86,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             Marker(
                 state = MarkerState(position = itb),
                 title = "ITB",
-                snippet = "Marker at ITB"
+                snippet = "Fucking Burpees"
             )
 
             markers.forEach { coordinates ->
@@ -85,26 +94,26 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                     Marker(
                         state = MarkerState(position = markerInfo.coordinates),
                         title = markerInfo.name,
-                        snippet = "Marker at ${markerInfo.name}"
+                        snippet = "Type: ${markerInfo.type}"
                     )
                 }
             }
         }
 
-        Button(
-            onClick = { navController.navigate(Routes.AddMarker.route) },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(Icons.Filled.Add, contentDescription = "Add marker", tint = Color.White)
-        }
+//        Button(
+//            onClick = { navController.navigate(Routes.AddMarker.route) },
+//            modifier = Modifier
+//                .align(Alignment.BottomEnd)
+//                .padding(16.dp)
+//        ) {
+//            Icon(Icons.Filled.Add, contentDescription = "Add marker", tint = Color.White)
+//        }
 
         if (showPopup) {
             PopupWithTextField(
                 onDismiss = { setShowPopup(false) },
-                onTextFieldSubmitted = { name ->
-                    markers.add(MarkerInfo(name = name, coordinates = popupCoordinates))
+                onTextFieldSubmitted = { name, type ->
+                    markers.add(MarkerInfo(name = name, coordinates = popupCoordinates, type = type))
                     setShowPopup(false)
                 }
             )
@@ -114,16 +123,18 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
     }
 }
 
-data class MarkerInfo(val name: String, val coordinates: LatLng)
+data class MarkerInfo(val name: String, val coordinates: LatLng, val type: String)
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PopupWithTextField(
     onDismiss: () -> Unit,
-    onTextFieldSubmitted: (String) -> Unit
+    onTextFieldSubmitted: (String, String) -> Unit
 ) {
     var textFieldValue by remember { mutableStateOf("") }
+    val expanded = remember { mutableStateOf(false) }
+    val type = remember { mutableStateOf("Otro") }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -143,15 +154,46 @@ fun PopupWithTextField(
                 TextField(
                     value = textFieldValue,
                     onValueChange = { textFieldValue = it },
-                    label = { Text("Enter Text") },
+                    label = { Text("Enter marker name") },
                     modifier = Modifier.fillMaxWidth(0.8f)
                 )
+
+                OutlinedButton(onClick = { expanded.value = true }) {
+                    Text("Tipo: ${type.value}")
+                }
+
+                DropdownMenu(
+                    expanded = expanded.value,
+                    onDismissRequest = { expanded.value = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Otro") },
+                        onClick = {
+                            type.value = "Otro"
+                            expanded.value = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Montaña") },
+                        onClick = {
+                            type.value = "Montaña"
+                            expanded.value = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Bar") },
+                        onClick = {
+                            type.value = "Bar"
+                            expanded.value = false
+                        }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = {
-                        onTextFieldSubmitted(textFieldValue)
+                        onTextFieldSubmitted(textFieldValue, type.value)
                         onDismiss()
                     },
                     modifier = Modifier.align(Alignment.End)

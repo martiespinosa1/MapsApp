@@ -66,12 +66,8 @@ class MainActivity : ComponentActivity() {
                         startDestination = Routes.Launch.route
                     ) {
                         composable(Routes.Launch.route) { LaunchAnimation(navigationController) }
-                        composable(Routes.Map.route) {
-                            Map(ViewModel(), navigationController)
-                        }
-                        composable(Routes.AddMarker.route) {
-                            AddMarker()
-                        }
+                        composable(Routes.Map.route) { Map(ViewModel(), navigationController) }
+                        composable(Routes.AddMarker.route) { AddMarker() }
                     }
 
                     MyDrawer(myViewModel = ViewModel())
@@ -104,7 +100,7 @@ fun MyDrawer (myViewModel: ViewModel) {
                     )
                 }
             }
-            Text("Drawer title", modifier = Modifier.padding(16.dp), fontWeight = FontWeight.Bold)
+            Text("Marcadores", modifier = Modifier.padding(16.dp), fontWeight = FontWeight.Bold)
             Divider()
             NavigationDrawerItem(
                 label = { Text(text = "Drawer Item 1") },
@@ -131,7 +127,7 @@ fun MyTopAppBar(myViewModel: ViewModel, state: DrawerState) {
     TopAppBar(
         title = { Text(text = "Maps App") },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color.Transparent,
+            containerColor = Color.DarkGray,
             titleContentColor = Color.White,
             navigationIconContentColor = Color.White,
             actionIconContentColor = Color.White
