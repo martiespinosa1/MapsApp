@@ -47,7 +47,10 @@ fun LogIn() {
 
         Button(onClick = { },
             Modifier.width(300.dp)) {
-            Text(text = "Register")
+            Text(
+                text = "Register",
+                fontSize = 18.sp
+            )
         }
 
     }
