@@ -44,6 +44,8 @@ import com.example.mapsapp.MyDrawer
 import com.example.mapsapp.MyScaffold
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.viewmodel.ViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
@@ -56,12 +58,12 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun Map(myViewModel: ViewModel, navController: NavController) {
     val markers = remember { mutableStateListOf<MarkerInfo>() }
     val (showPopup, setShowPopup) = remember { mutableStateOf(false) }
     val (popupCoordinates, setPopupCoordinates) = remember { mutableStateOf(LatLng(0.0, 0.0)) }
-
 
     Box(
         modifier = Modifier

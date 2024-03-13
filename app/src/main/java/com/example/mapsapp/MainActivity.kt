@@ -1,6 +1,9 @@
 package com.example.mapsapp
 
+import android.annotation.SuppressLint
+import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -31,13 +34,20 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -47,10 +57,19 @@ import com.example.mapsapp.ui.theme.MapsAppTheme
 import com.example.mapsapp.view.AddMarker
 import com.example.mapsapp.view.LaunchAnimation
 import com.example.mapsapp.view.Map
+import com.example.mapsapp.view.MarkerList
 import com.example.mapsapp.viewmodel.ViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -60,17 +79,30 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    val myViewModel = ViewModel()
                     val navigationController = rememberNavController()
+
+                    val permissionState = rememberPermissionState(permission = android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    LaunchedEffect(Unit) {
+                        permissionState.launchPermissionRequest()
+                    }
+                    if(permissionState.status.isGranted) {
+                        Map(myViewModel, navigationController)
+                    } else {
+                        Text("Need permission")
+                    }
+
                     NavHost(
                         navController = navigationController,
                         startDestination = Routes.Launch.route
                     ) {
                         composable(Routes.Launch.route) { LaunchAnimation(navigationController) }
-                        composable(Routes.Map.route) { Map(ViewModel(), navigationController) }
+                        composable(Routes.Map.route) { Map(myViewModel, navigationController) }
                         composable(Routes.AddMarker.route) { AddMarker() }
+                        composable(Routes.MarkerList.route) { MarkerList(myViewModel, navigationController) }
                     }
 
-                    MyDrawer(myViewModel = ViewModel())
+                    MyDrawer(myViewModel, navigationController)
                 }
             }
         }
@@ -78,10 +110,30 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@SuppressLint("MissingPermission")
+@Composable
+fun MyGeoLocalizer(myViewModel: ViewModel) {
+    val context = LocalContext.current
+    val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    var lastKnownLocation by remember { mutableStateOf<Location?>(null) }
+    var deviceLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+    val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f) }
+    val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
+    locationResult.addOnCompleteListener(context as MainActivity) { task ->
+        if (task.isSuccessful) {
+            lastKnownLocation = task.result
+            deviceLatLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f)
+        } else {
+            Log.e("Error", "Exception: %s", task.exception)
+        }
+    }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyDrawer (myViewModel: ViewModel) {
-    val navigationController = rememberNavController()
+fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
     val scope = rememberCoroutineScope()
     val state: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     ModalNavigationDrawer(modifier = Modifier.fillMaxWidth(), drawerState = state, gesturesEnabled = false, drawerContent = {
@@ -100,10 +152,30 @@ fun MyDrawer (myViewModel: ViewModel) {
                     )
                 }
             }
-            Text("Marcadores", modifier = Modifier.padding(16.dp), fontWeight = FontWeight.Bold)
+            Text("User name", modifier = Modifier.padding(16.dp), fontWeight = FontWeight.Bold)
             Divider()
             NavigationDrawerItem(
-                label = { Text(text = "Drawer Item 1") },
+                label = { Text(text = "View marker list") },
+                selected = false,
+                onClick = {
+                    scope.launch {
+                        state.close()
+                    }
+                    navController.navigate(Routes.MarkerList.route)
+                }
+            )
+            NavigationDrawerItem(
+                label = { Text(text = "Add marker in current location") },
+                selected = false,
+                onClick = {
+                    scope.launch {
+                        state.close()
+                    }
+                    //navigation
+                }
+            )
+            NavigationDrawerItem(
+                label = { Text(text = "Log out") },
                 selected = false,
                 onClick = {
                     scope.launch {
@@ -114,7 +186,7 @@ fun MyDrawer (myViewModel: ViewModel) {
             )
         }
     }) {
-        MyScaffold (myViewModel, state, navigationController)
+        MyScaffold (myViewModel, state, navController)
     }
 }
 
