@@ -56,6 +56,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.ui.theme.MapsAppTheme
 import com.example.mapsapp.view.AddMarker
+import com.example.mapsapp.view.Camera
 import com.example.mapsapp.view.LaunchAnimation
 import com.example.mapsapp.view.Map
 import com.example.mapsapp.view.MarkerList
@@ -83,12 +84,24 @@ class MainActivity : ComponentActivity() {
                     val myViewModel = ViewModel()
                     val navigationController = rememberNavController()
 
-                    val permissionState = rememberPermissionState(permission = android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    // location permission
+                    val localizationPermissionState = rememberPermissionState(permission = android.Manifest.permission.ACCESS_FINE_LOCATION)
                     LaunchedEffect(Unit) {
-                        permissionState.launchPermissionRequest()
+                        localizationPermissionState.launchPermissionRequest()
                     }
-                    if(permissionState.status.isGranted) {
+                    if(localizationPermissionState.status.isGranted) {
                         Map(myViewModel, navigationController)
+                    } else {
+                        Text("Need permission")
+                    }
+
+                    // camera permission
+                    val cameraPermissionState = rememberPermissionState(permission = android.Manifest.permission.CAMERA)
+                    LaunchedEffect(Unit) {
+                        cameraPermissionState.launchPermissionRequest()
+                    }
+                    if(cameraPermissionState.status.isGranted) {
+                        Camera()
                     } else {
                         Text("Need permission")
                     }
@@ -101,6 +114,7 @@ class MainActivity : ComponentActivity() {
                         composable(Routes.Map.route) { Map(myViewModel, navigationController) }
                         composable(Routes.AddMarker.route) { AddMarker() }
                         composable(Routes.MarkerList.route) { MarkerList(myViewModel, navigationController) }
+                        composable(Routes.Camera.route) { Camera() }
                     }
 
                     MyDrawer(myViewModel, navigationController)
