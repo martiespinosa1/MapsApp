@@ -75,10 +75,27 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val itb = LatLng(41.4534265, 2.1837151)
-        val cameraPositionState = rememberCameraPositionState {
-            position = CameraPosition.fromLatLngZoom(itb, 10f)
+//        val itb = LatLng(41.4534265, 2.1837151)
+//        val cameraPositionState = rememberCameraPositionState {
+//            position = CameraPosition.fromLatLngZoom(itb, 10f)
+//        }
+
+        val context = LocalContext.current
+        val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+        var lastKnownLocation by remember { mutableStateOf<Location?>(null) }
+        var deviceLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+        val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f) }
+        val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
+        locationResult.addOnCompleteListener(context as MainActivity) { task ->
+            if (task.isSuccessful) {
+                lastKnownLocation = task.result
+                deviceLatLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f)
+            } else {
+                Log.e("Error", "Exception: %s", task.exception)
+            }
         }
+
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
@@ -86,6 +103,8 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                 zoomControlsEnabled = false ,
                 myLocationButtonEnabled = true
             ),
+            properties = MapProperties(isMyLocationEnabled = true, isBuildingEnabled = true),
+
             onMapLongClick = { coordinates ->
                 setPopupCoordinates(coordinates)
                 setShowPopup(true)
@@ -97,21 +116,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
 //                snippet = "Fucking Burpees"
 //            )
 
-            val context = LocalContext.current
-            val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-            var lastKnownLocation by remember { mutableStateOf<Location?>(null) }
-            var deviceLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
-            val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f) }
-            val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
-            locationResult.addOnCompleteListener(context as MainActivity) { task ->
-                if (task.isSuccessful) {
-                    lastKnownLocation = task.result
-                    deviceLatLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f)
-                } else {
-                    Log.e("Error", "Exception: %s", task.exception)
-                }
-            }
+
 
             myMarkers.forEach { coordinates ->
                 myMarkers.forEach { markerInfo ->

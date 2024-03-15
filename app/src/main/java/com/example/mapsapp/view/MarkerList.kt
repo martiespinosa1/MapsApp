@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.viewmodel.ViewModel
 import androidx.compose.material3.Icon
+import com.example.mapsapp.navigation.Routes
 
 @Composable
 fun MarkerList(myViewModel: ViewModel, navController: NavController) {
@@ -50,7 +51,19 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
 @Composable
 fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: ViewModel) {
     Card(
-        onClick = {  },
+        onClick = {
+            navController.navigate(Routes.Map.route) {
+                launchSingleTop = true
+                popUpTo(Routes.Map.route) {
+                    saveState = true
+                }
+//                navController.graph.startDestinationRoute?.let { route ->
+//                    navigate(route) {
+//                        putParcelable("marker", marker)
+//                    }
+//                }
+            }
+        },
         border = BorderStroke(3.dp, Color.LightGray),
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier.padding(8.dp)
