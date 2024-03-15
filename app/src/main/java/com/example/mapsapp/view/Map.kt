@@ -1,6 +1,7 @@
 package com.example.mapsapp.view
 
 import android.annotation.SuppressLint
+import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,8 +42,10 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.mapsapp.MainActivity
 import com.example.mapsapp.MyDrawer
 import com.example.mapsapp.MyScaffold
+import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.viewmodel.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -58,10 +62,12 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
+@SuppressLint("MissingPermission")
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun Map(myViewModel: ViewModel, navController: NavController) {
-    val markers = remember { mutableStateListOf<MarkerInfo>() }
+    //val markers = remember { mutableStateListOf<MarkerInfo>() }
+    val myMarkers: List<MarkerInfo> by myViewModel.markers.observeAsState(emptyList())
     val (showPopup, setShowPopup) = remember { mutableStateOf(false) }
     val (popupCoordinates, setPopupCoordinates) = remember { mutableStateOf(LatLng(0.0, 0.0)) }
 
@@ -85,14 +91,30 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                 setShowPopup(true)
             }
         ) {
-            Marker(
-                state = MarkerState(position = itb),
-                title = "ITB",
-                snippet = "Fucking Burpees"
-            )
+//            Marker(
+//                state = MarkerState(position = itb),
+//                title = "ITB",
+//                snippet = "Fucking Burpees"
+//            )
 
-            markers.forEach { coordinates ->
-                markers.forEach { markerInfo ->
+            val context = LocalContext.current
+            val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+            var lastKnownLocation by remember { mutableStateOf<Location?>(null) }
+            var deviceLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+            val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f) }
+            val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
+            locationResult.addOnCompleteListener(context as MainActivity) { task ->
+                if (task.isSuccessful) {
+                    lastKnownLocation = task.result
+                    deviceLatLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f)
+                } else {
+                    Log.e("Error", "Exception: %s", task.exception)
+                }
+            }
+
+            myMarkers.forEach { coordinates ->
+                myMarkers.forEach { markerInfo ->
                     Marker(
                         state = MarkerState(position = markerInfo.coordinates),
                         title = markerInfo.name,
@@ -115,17 +137,19 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             PopupWithTextField(
                 onDismiss = { setShowPopup(false) },
                 onTextFieldSubmitted = { name, type ->
-                    markers.add(MarkerInfo(name = name, coordinates = popupCoordinates, type = type))
+                    val currentMarkers = myViewModel.markers.value ?: mutableListOf()
+                    currentMarkers.add(MarkerInfo(name = name, coordinates = popupCoordinates, type = type))
+                    myViewModel.markers.value = currentMarkers
                     setShowPopup(false)
                 }
             )
         }
 
 
+
     }
 }
 
-data class MarkerInfo(val name: String, val coordinates: LatLng, val type: String)
 
 
 @OptIn(ExperimentalMaterial3Api::class)

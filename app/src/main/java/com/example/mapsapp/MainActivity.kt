@@ -51,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.ui.theme.MapsAppTheme
@@ -110,30 +111,13 @@ class MainActivity : ComponentActivity() {
 }
 
 
-@SuppressLint("MissingPermission")
-@Composable
-fun MyGeoLocalizer(myViewModel: ViewModel) {
-    val context = LocalContext.current
-    val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    var lastKnownLocation by remember { mutableStateOf<Location?>(null) }
-    var deviceLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
-    val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f) }
-    val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
-    locationResult.addOnCompleteListener(context as MainActivity) { task ->
-        if (task.isSuccessful) {
-            lastKnownLocation = task.result
-            deviceLatLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f)
-        } else {
-            Log.e("Error", "Exception: %s", task.exception)
-        }
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     val scope = rememberCoroutineScope()
     val state: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     ModalNavigationDrawer(modifier = Modifier.fillMaxWidth(), drawerState = state, gesturesEnabled = false, drawerContent = {
@@ -161,7 +145,21 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                     scope.launch {
                         state.close()
                     }
-                    navController.navigate(Routes.MarkerList.route)
+                    if (currentRoute != Routes.MarkerList.route) {
+                        navController.navigate(Routes.MarkerList.route)
+                    }
+                }
+            )
+            NavigationDrawerItem(
+                label = { Text(text = "View map") },
+                selected = false,
+                onClick = {
+                    scope.launch {
+                        state.close()
+                    }
+                    if (currentRoute != Routes.Map.route) {
+                        navController.navigate(Routes.Map.route)
+                    }
                 }
             )
             NavigationDrawerItem(
@@ -224,6 +222,9 @@ fun MyTopAppBar(myViewModel: ViewModel, state: DrawerState) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScaffold(myViewModel: ViewModel, state: DrawerState, navController: NavController) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     Scaffold(
         topBar = { MyTopAppBar(myViewModel, state) },
         bottomBar = { },
@@ -233,7 +234,15 @@ fun MyScaffold(myViewModel: ViewModel, state: DrawerState, navController: NavCon
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                Map(myViewModel, navController)
+                when(currentRoute) {
+                    Routes.Map.route -> Map(myViewModel = myViewModel, navController = navController
+                    )
+
+                    Routes.MarkerList.route -> MarkerList(
+                        myViewModel = myViewModel,
+                        navController = navController
+                    )
+                }
             }
         }
     )
