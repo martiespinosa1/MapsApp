@@ -1,5 +1,13 @@
 package com.example.mapsapp.view
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -7,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -30,10 +40,73 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.viewmodel.ViewModel
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
 import com.example.mapsapp.navigation.Routes
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MarkerList(myViewModel: ViewModel, navController: NavController) {
+    val context = LocalContext.current
+    val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
+    val shouldShowPermissionRationale by myViewModel.shouldShowPermissionRationale.observeAsState(false)
+    val showPermissionDenied by myViewModel.showPermissionDenied.observeAsState(false)
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                myViewModel.setCameraPermissionGranted(true)
+            } else {
+                myViewModel.setShouldShowPermissionRationale(
+                    ActivityCompat.shouldShowRequestPermissionRationale(
+                        context as Activity,
+                        Manifest.permission.CAMERA
+                    )
+                )
+                if (!shouldShowPermissionRationale) {
+                    Log.i("Camera", "No podemos volver a pedir permisos")
+                    myViewModel.setShowPermissionDenied(true)
+                }
+            }
+        }
+    )
+    // camera permission
+    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
+    LaunchedEffect(Unit) {
+        cameraPermissionState.launchPermissionRequest()
+    }
+    if(cameraPermissionState.status.isGranted) {
+        TakePhoto(myViewModel, navController)
+    } else {
+        Text("Need permission")
+    }
+
+//    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()
+//    ) {
+//        Button(onClick = {
+//            if (!isCameraPermissionGranted) {
+//                Log.i("Permission", "NOT GRANTED")
+//                launcher.launch(Manifest.permission.CAMERA)
+//            } else {
+//                Log.i("Permission", "GRANTED")
+//                navController.navigate(Routes.TakePhoto.route)
+//            }
+//        }) {
+//            Text(text = "Take photo")
+//        }
+//    }
+    if (showPermissionDenied) {
+        PermisionDeclinedScreen()
+    }
+
+
+
     Column {
         LazyColumn() {
             items(myViewModel.markers.value?.size ?: 0) { index ->
@@ -69,7 +142,9 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
         modifier = Modifier.padding(8.dp)
     ) {
         Box(
-            modifier = Modifier.background(Color.Gray).fillMaxWidth()
+            modifier = Modifier
+                .background(Color.Gray)
+                .fillMaxWidth()
         ) {
             Row(
                 horizontalArrangement = Arrangement.Start,
@@ -113,5 +188,32 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                 }
             }
         }
+    }
+}
+
+
+
+
+@Composable
+fun PermisionDeclinedScreen() {
+    val context = LocalContext.current
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()
+    ) {
+        Text(text = "Permission requiered", fontWeight = FontWeight.Bold)
+        Text(text = "This app needs access to the camera to take photos")
+        Button(onClick = {
+            openAppSettings(context as Activity)
+        }) {
+            Text(text = "Accept")
+        }
+    }
+}
+
+fun openAppSettings(activity: Activity) {
+    val intent = Intent().apply {
+        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        data = Uri.fromParts("package", activity.packageName, null)
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
     }
 }

@@ -1,16 +1,11 @@
 package com.example.mapsapp
 
-import android.annotation.SuppressLint
-import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -36,18 +31,12 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -56,18 +45,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.ui.theme.MapsAppTheme
 import com.example.mapsapp.view.AddMarker
-import com.example.mapsapp.view.Camera
 import com.example.mapsapp.view.LaunchAnimation
 import com.example.mapsapp.view.Map
 import com.example.mapsapp.view.MarkerList
+import com.example.mapsapp.view.TakePhoto
 import com.example.mapsapp.viewmodel.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -95,16 +80,7 @@ class MainActivity : ComponentActivity() {
                         Text("Need permission")
                     }
 
-                    // camera permission
-                    val cameraPermissionState = rememberPermissionState(permission = android.Manifest.permission.CAMERA)
-                    LaunchedEffect(Unit) {
-                        cameraPermissionState.launchPermissionRequest()
-                    }
-                    if(cameraPermissionState.status.isGranted) {
-                        Camera()
-                    } else {
-                        Text("Need permission")
-                    }
+
 
                     NavHost(
                         navController = navigationController,
@@ -114,7 +90,7 @@ class MainActivity : ComponentActivity() {
                         composable(Routes.Map.route) { Map(myViewModel, navigationController) }
                         composable(Routes.AddMarker.route) { AddMarker() }
                         composable(Routes.MarkerList.route) { MarkerList(myViewModel, navigationController) }
-                        composable(Routes.Camera.route) { Camera() }
+                        composable(Routes.TakePhoto.route) { TakePhoto(myViewModel, navigationController) }
                     }
 
                     MyDrawer(myViewModel, navigationController)

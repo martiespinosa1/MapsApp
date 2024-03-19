@@ -8,4 +8,5 @@ sealed class Routes(val route: String) {
     object AddMarker: Routes("AddMarker")
     object MarkerList: Routes("MarkerList")
     object Camera: Routes("Camera")
+    object TakePhoto: Routes("TakePhoto")
 }

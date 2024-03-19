@@ -22,4 +22,24 @@ class ViewModel: ViewModel() {
 
 
 
+    private val _cameraPermissionGrented = MutableLiveData(false)
+    val cameraPermissionGrented = _cameraPermissionGrented
+
+    private val _shouldShowPermissionRationale = MutableLiveData(false)
+    val shouldShowPermissionRationale = _shouldShowPermissionRationale
+
+    private val _showPermissionDenied = MutableLiveData(false)
+    val showPermissionDenied = _showPermissionDenied
+
+    fun setCameraPermissionGranted(granted: Boolean) {
+        _cameraPermissionGrented.value = granted
+    }
+
+    fun setShouldShowPermissionRationale(should: Boolean) {
+        _shouldShowPermissionRationale.value = should
+    }
+
+    fun setShowPermissionDenied(denied: Boolean) {
+        _showPermissionDenied.value = denied
+    }
 }
