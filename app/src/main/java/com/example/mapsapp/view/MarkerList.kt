@@ -77,15 +77,15 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
         }
     )
     // camera permission
-    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
-    LaunchedEffect(Unit) {
-        cameraPermissionState.launchPermissionRequest()
-    }
-    if(cameraPermissionState.status.isGranted) {
-        TakePhoto(myViewModel, navController)
-    } else {
-        Text("Need permission")
-    }
+//    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
+//    LaunchedEffect(Unit) {
+//        cameraPermissionState.launchPermissionRequest()
+//    }
+//    if(cameraPermissionState.status.isGranted) {
+//        TakePhoto(myViewModel, navController)
+//    } else {
+//        Text("Need permission")
+//    }
 
 //    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()
 //    ) {
@@ -194,26 +194,4 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
 
 
 
-@Composable
-fun PermisionDeclinedScreen() {
-    val context = LocalContext.current
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()
-    ) {
-        Text(text = "Permission requiered", fontWeight = FontWeight.Bold)
-        Text(text = "This app needs access to the camera to take photos")
-        Button(onClick = {
-            openAppSettings(context as Activity)
-        }) {
-            Text(text = "Accept")
-        }
-    }
-}
 
-fun openAppSettings(activity: Activity) {
-    val intent = Intent().apply {
-        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-        data = Uri.fromParts("package", activity.packageName, null)
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    }
-}

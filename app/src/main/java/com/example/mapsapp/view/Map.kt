@@ -1,9 +1,17 @@
 package com.example.mapsapp.view
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.location.Location
+import android.net.Uri
+import android.provider.Settings
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -36,10 +44,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mapsapp.MainActivity
@@ -49,6 +59,7 @@ import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.viewmodel.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -139,7 +150,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
 //        }
 
         if (showPopup) {
-            PopupWithTextField(
+            PopupWithTextField(myViewModel, navController,
                 onDismiss = { setShowPopup(false) },
                 onTextFieldSubmitted = { name, type ->
                     val currentMarkers = myViewModel.markers.value ?: mutableListOf()
@@ -157,15 +168,52 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun PopupWithTextField(
+    myViewModel: ViewModel,
+    navController: NavController,
     onDismiss: () -> Unit,
     onTextFieldSubmitted: (String, String) -> Unit
 ) {
     var textFieldValue by remember { mutableStateOf("") }
     val expanded = remember { mutableStateOf(false) }
     val type = remember { mutableStateOf("Otro") }
+
+    val context = LocalContext.current
+    val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
+    val shouldShowPermissionRationale by myViewModel.shouldShowPermissionRationale.observeAsState(false)
+    val showPermissionDenied by myViewModel.showPermissionDenied.observeAsState(false)
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            myViewModel.setCameraPermissionGranted(true)
+            navController.navigate(Routes.TakePhoto.route)
+        } else {
+            myViewModel.setShouldShowPermissionRationale(
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    context as Activity,
+                    Manifest.permission.CAMERA
+                )
+            )
+            if (!shouldShowPermissionRationale) {
+                Log.i("Camera", "No podemos volver a pedir permisos")
+                myViewModel.setShowPermissionDenied(true)
+            }
+        }
+    }
+
+    // camera permissions
+    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
+    LaunchedEffect(Unit) {
+        cameraPermissionState.launchPermissionRequest()
+    }
+    if(cameraPermissionState.status.isGranted) {
+        TakePhoto(myViewModel, navController)
+    } else {
+        Text("Need permission")
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -182,6 +230,17 @@ fun PopupWithTextField(
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
+                Button(onClick = {
+                    if (!isCameraPermissionGranted) {
+                        launcher.launch(Manifest.permission.CAMERA)
+                    } else {
+                        navController.navigate(Routes.TakePhoto.route)
+                    }
+                }
+                ) {
+                    Text(text = "Go to Take photo")
+                }
+
                 TextField(
                     value = textFieldValue,
                     onValueChange = { textFieldValue = it },
@@ -232,6 +291,36 @@ fun PopupWithTextField(
                     Text("Submit")
                 }
             }
+            if (showPermissionDenied) {
+                PermisionDeclinedScreen()
+            }
         }
+    }
+}
+
+
+
+
+@Composable
+fun PermisionDeclinedScreen() {
+    val context = LocalContext.current
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()
+    ) {
+        Text(text = "Permission requiered", fontWeight = FontWeight.Bold)
+        Text(text = "This app needs access to the camera to take photos")
+        Button(onClick = {
+            openAppSettings(context as Activity)
+        }) {
+            Text(text = "Accept")
+        }
+    }
+}
+
+fun openAppSettings(activity: Activity) {
+    val intent = Intent().apply {
+        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        data = Uri.fromParts("package", activity.packageName, null)
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
     }
 }
