@@ -54,6 +54,8 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.layout.ContentScale
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -126,7 +128,7 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: ViewModel) {
     Card(
@@ -191,6 +193,18 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                         fontWeight = FontWeight.Bold,
                         fontFamily = FontFamily.Monospace
                     )
+                    Spacer(modifier = Modifier.size(12.dp))
+                    LazyRow {
+                        if (marker.fotos != null)
+                        items(marker.fotos) { foto ->
+                            GlideImage(
+                                model = foto,
+                                contentDescription = "Marker's Photo",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.size(100.dp)
+                            )
+                        }
+                    }
                 }
             }
         }

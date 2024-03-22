@@ -42,6 +42,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.viewmodel.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -51,6 +52,8 @@ import java.lang.Exception
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
+    val myMarkers: List<MarkerInfo> by myViewModel.markers.observeAsState(emptyList())
+
     val context = LocalContext.current
     val controller = remember {
         LifecycleCameraController(context).apply {
@@ -98,7 +101,8 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                     }
                     IconButton(onClick = {
                         takePhoto(context, controller) { photo ->
-                            // Do something with the photo
+                            addPotoToMarker(photo)
+                            navController.popBackStack()
                         }
                     }) {
                         Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
@@ -110,6 +114,11 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
         Text("Need permission")
     }
 
+
+}
+
+
+private fun addPotoToMarker(photo: Bitmap) {
 
 }
 

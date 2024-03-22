@@ -1,20 +1,15 @@
 package com.example.mapsapp.viewmodel
 
-import androidx.compose.material3.Text
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mapsapp.model.MarkerInfo
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.model.LatLng
 
 class ViewModel: ViewModel() {
 
     // AQUI SE TIENEN QUE PONER COSAS QUE ESTAN EN OTRAS SCREENS
 
-    private var _marker = MutableLiveData(MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb"))
+    private var _marker = MutableLiveData(MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null))
     var marker = _marker
 
     private var _markers = MutableLiveData<MutableList<MarkerInfo>>()
