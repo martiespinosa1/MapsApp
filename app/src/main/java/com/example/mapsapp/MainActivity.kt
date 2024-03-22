@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -75,25 +76,10 @@ class MainActivity : ComponentActivity() {
                         localizationPermissionState.launchPermissionRequest()
                     }
                     if(localizationPermissionState.status.isGranted) {
-                        Map(myViewModel, navigationController)
+                        MyDrawer(myViewModel, navigationController)
                     } else {
                         Text("Need permission")
                     }
-
-
-
-                    NavHost(
-                        navController = navigationController,
-                        startDestination = Routes.Launch.route
-                    ) {
-                        composable(Routes.Launch.route) { LaunchAnimation(navigationController) }
-                        composable(Routes.Map.route) { Map(myViewModel, navigationController) }
-                        composable(Routes.AddMarker.route) { AddMarker() }
-                        composable(Routes.MarkerList.route) { MarkerList(myViewModel, navigationController) }
-                        composable(Routes.TakePhoto.route) { TakePhoto(myViewModel, navigationController) }
-                    }
-
-                    MyDrawer(myViewModel, navigationController)
                 }
             }
         }
@@ -224,14 +210,15 @@ fun MyScaffold(myViewModel: ViewModel, state: DrawerState, navController: NavCon
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                when(currentRoute) {
-                    Routes.Map.route -> Map(myViewModel = myViewModel, navController = navController
-                    )
-
-                    Routes.MarkerList.route -> MarkerList(
-                        myViewModel = myViewModel,
-                        navController = navController
-                    )
+                NavHost(
+                    navController = navController as NavHostController,
+                    startDestination = Routes.Map.route
+                ) {
+                    composable(Routes.Launch.route) { LaunchAnimation(navController) }
+                    composable(Routes.Map.route) { Map(myViewModel, navController) }
+                    composable(Routes.AddMarker.route) { AddMarker() }
+                    composable(Routes.MarkerList.route) { MarkerList(myViewModel, navController) }
+                    composable(Routes.TakePhoto.route) { TakePhoto(myViewModel, navController) }
                 }
             }
         }

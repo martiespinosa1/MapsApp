@@ -205,15 +205,15 @@ fun PopupWithTextField(
     }
 
     // camera permissions
-    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
-    LaunchedEffect(Unit) {
-        cameraPermissionState.launchPermissionRequest()
-    }
-    if(cameraPermissionState.status.isGranted) {
-        TakePhoto(myViewModel, navController)
-    } else {
-        Text("Need permission")
-    }
+//    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
+//    LaunchedEffect(Unit) {
+//        cameraPermissionState.launchPermissionRequest()
+//    }
+//    if(cameraPermissionState.status.isGranted) {
+//        TakePhoto(myViewModel, navController)
+//    } else {
+//        Text("Need permission")
+//    }
 
     Dialog(
         onDismissRequest = onDismiss,

@@ -57,46 +57,60 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
             CameraController.IMAGE_CAPTURE
         }
     }
-    Box(modifier = Modifier.fillMaxSize()) {
-        CameraPreview(controller = controller, modifier = Modifier.fillMaxSize())
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .align(
-                    Alignment.BottomCenter
-                )
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxWidth()
+
+    // camera permissions
+    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
+    LaunchedEffect(Unit) {
+        cameraPermissionState.launchPermissionRequest()
+    }
+    if(cameraPermissionState.status.isGranted) {
+        //TakePhoto(myViewModel, navController)
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            CameraPreview(controller = controller, modifier = Modifier.fillMaxSize())
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(
+                        Alignment.BottomCenter
+                    )
             ) {
-                IconButton(
-                    onClick = {
-                        controller.cameraSelector =
-                            if (controller.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
-                                CameraSelector.DEFAULT_FRONT_CAMERA
-                            } else {
-                                CameraSelector.DEFAULT_BACK_CAMERA
-                            }
-                    },
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(imageVector = Icons.Default.Cameraswitch, contentDescription = "Switch camera")
-                }
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Default.Photo, contentDescription = "Open gallery")
-                }
-                IconButton(onClick = {
-                    takePhoto(context, controller) { photo ->
-                        // Do something with the photo
+                    IconButton(
+                        onClick = {
+                            controller.cameraSelector =
+                                if (controller.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                                    CameraSelector.DEFAULT_FRONT_CAMERA
+                                } else {
+                                    CameraSelector.DEFAULT_BACK_CAMERA
+                                }
+                        },
+                    ) {
+                        Icon(imageVector = Icons.Default.Cameraswitch, contentDescription = "Switch camera")
                     }
-                }) {
-                    Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(imageVector = Icons.Default.Photo, contentDescription = "Open gallery")
+                    }
+                    IconButton(onClick = {
+                        takePhoto(context, controller) { photo ->
+                            // Do something with the photo
+                        }
+                    }) {
+                        Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
+                    }
                 }
             }
         }
+    } else {
+        Text("Need permission")
     }
+
+
 }
 
 private fun takePhoto(context: Context,
