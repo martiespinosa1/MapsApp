@@ -1,5 +1,7 @@
 package com.example.mapsapp.viewmodel
 
+import android.graphics.Bitmap
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mapsapp.model.MarkerInfo
@@ -15,6 +17,8 @@ class ViewModel: ViewModel() {
     private var _markers = MutableLiveData<MutableList<MarkerInfo>>()
     var markers = _markers
 
+    private val _fotos = MutableLiveData<MutableList<Bitmap>>(mutableListOf())
+    val fotos: LiveData<MutableList<Bitmap>> = _fotos
 
 
     private val _cameraPermissionGrented = MutableLiveData(false)
@@ -36,5 +40,11 @@ class ViewModel: ViewModel() {
 
     fun setShowPermissionDenied(denied: Boolean) {
         _showPermissionDenied.value = denied
+    }
+
+    fun addPhoto(photo: Bitmap) {
+        val currentList = _fotos.value ?: mutableListOf()
+        currentList.add(photo)
+        _fotos.value = currentList
     }
 }

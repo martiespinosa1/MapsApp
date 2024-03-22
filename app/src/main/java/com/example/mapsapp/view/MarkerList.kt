@@ -194,15 +194,25 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                         fontFamily = FontFamily.Monospace
                     )
                     Spacer(modifier = Modifier.size(12.dp))
+
+                    Button(onClick = {
+                        navController.navigate(Routes.TakePhoto.route)
+                    }) {
+                        Text("Take photo")
+                    }
+
                     LazyRow {
-                        if (marker.fotos != null)
-                        items(marker.fotos) { foto ->
-                            GlideImage(
-                                model = foto,
-                                contentDescription = "Marker's Photo",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.size(100.dp)
-                            )
+                        if (myViewModel.fotos != null) {
+                            myViewModel.fotos.value?.let {
+                                items(it.size) { foto ->
+                                    GlideImage(
+                                        model = foto,
+                                        contentDescription = "Marker's Photo",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.size(100.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

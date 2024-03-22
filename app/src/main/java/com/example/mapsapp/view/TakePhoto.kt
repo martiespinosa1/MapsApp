@@ -101,7 +101,7 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                     }
                     IconButton(onClick = {
                         takePhoto(context, controller) { photo ->
-                            addPotoToMarker(photo)
+                            addPotoToMarker(photo, myViewModel)
                             navController.popBackStack()
                         }
                     }) {
@@ -113,13 +113,12 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
     } else {
         Text("Need permission")
     }
-
-
 }
 
 
-private fun addPotoToMarker(photo: Bitmap) {
 
+private fun addPotoToMarker(photo: Bitmap, myViewModel: ViewModel) {
+    myViewModel.addPhoto(photo)
 }
 
 private fun takePhoto(context: Context,
@@ -139,6 +138,8 @@ private fun takePhoto(context: Context,
         }
     )
 }
+
+
 
 
 @Composable
