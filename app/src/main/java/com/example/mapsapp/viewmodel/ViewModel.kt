@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mapsapp.model.MarkerInfo
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 
 class ViewModel: ViewModel() {
 
@@ -15,7 +16,7 @@ class ViewModel: ViewModel() {
     var marker = _marker
 
     private var _markers = MutableLiveData<MutableList<MarkerInfo>>()
-    var markers = _markers
+    val markers = _markers
 
     private val _fotos = MutableLiveData<MutableList<Bitmap>>(mutableListOf())
     val fotos: LiveData<MutableList<Bitmap>> = _fotos
@@ -47,4 +48,11 @@ class ViewModel: ViewModel() {
         currentList.add(photo)
         _fotos.value = currentList
     }
+
+    fun removeMarker(markerInfo: MarkerInfo) {
+        val currentList = _markers.value?.toMutableList()
+        currentList?.remove(markerInfo)
+        _markers.value = currentList
+    }
+
 }

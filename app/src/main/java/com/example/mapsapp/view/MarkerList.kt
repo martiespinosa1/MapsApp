@@ -186,30 +186,29 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                         fontFamily = FontFamily.Monospace
                     )
                     Spacer(modifier = Modifier.size(12.dp))
-                    Text(
-                        text = marker.coordinates.toString(),
-                        color = Color.LightGray,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace
-                    )
-                    Spacer(modifier = Modifier.size(12.dp))
-
                     Button(onClick = {
                         navController.navigate(Routes.TakePhoto.route)
                     }) {
                         Text("Take photo")
                     }
 
+                    Spacer(modifier = Modifier.size(12.dp))
+                    Button(onClick = {
+                        // Eliminar el marcador
+                        myViewModel.removeMarker(marker)
+                    }) {
+                        Text("Delete Marker")
+                    }
+
                     LazyRow {
                         if (myViewModel.fotos != null) {
                             myViewModel.fotos.value?.let {
-                                items(it.size) { foto ->
+                                items(it.size) {
                                     GlideImage(
-                                        model = foto,
+                                        model = myViewModel.fotos.value!![it],
                                         contentDescription = "Marker's Photo",
                                         contentScale = ContentScale.Crop,
-                                        modifier = Modifier.size(100.dp)
+                                        modifier = Modifier.size(100.dp).padding(8.dp)
                                     )
                                 }
                             }

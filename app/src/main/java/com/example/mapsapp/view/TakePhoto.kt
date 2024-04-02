@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.PhotoCamera
@@ -47,6 +50,9 @@ import com.example.mapsapp.viewmodel.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.lang.Exception
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -84,6 +90,10 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                     horizontalArrangement = Arrangement.SpaceAround,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    IconButton(onClick = { navController.popBackStack() }
+                    ) {
+                        Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Go back")
+                    }
                     IconButton(
                         onClick = {
                             controller.cameraSelector =
@@ -102,7 +112,6 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                     IconButton(onClick = {
                         takePhoto(context, controller) { photo ->
                             addPotoToMarker(photo, myViewModel)
-                            navController.popBackStack()
                         }
                     }) {
                         Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
@@ -114,6 +123,7 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
         Text("Need permission")
     }
 }
+
 
 
 
