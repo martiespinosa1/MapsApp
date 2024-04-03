@@ -4,8 +4,11 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,7 +38,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,7 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.example.mapsapp.R
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.viewmodel.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -66,6 +74,24 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
             CameraController.IMAGE_CAPTURE
         }
     }
+
+    val img: Bitmap? = ContextCompat.getDrawable(context, R.drawable.empty_image)?.toBitmap()
+    var bitmap by remember { mutableStateOf(img) }
+    val launchImage = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = {
+            bitmap = if (Build.VERSION.SDK_INT < 28) {
+                MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+            } else {
+                val source = it?.let { itl ->
+                    ImageDecoder.createSource(context.contentResolver, itl)
+                }
+                source?.let { itl ->
+                    ImageDecoder.decodeBitmap(itl)
+                }
+            }
+        }
+    )
 
     // camera permissions
     val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
@@ -106,12 +132,14 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                     ) {
                         Icon(imageVector = Icons.Default.Cameraswitch, contentDescription = "Switch camera")
                     }
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        launchImage.launch("*image/*")
+                    }) {
                         Icon(imageVector = Icons.Default.Photo, contentDescription = "Open gallery")
                     }
                     IconButton(onClick = {
                         takePhoto(context, controller) { photo ->
-                            addPotoToMarker(photo, myViewModel)
+                            addPotoToMarker(myViewModel.currentMarker, photo, myViewModel)
                         }
                     }) {
                         Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
@@ -127,8 +155,8 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
 
 
 
-private fun addPotoToMarker(photo: Bitmap, myViewModel: ViewModel) {
-    myViewModel.addPhoto(photo)
+private fun addPotoToMarker(marker: MarkerInfo, photo: Bitmap, myViewModel: ViewModel) {
+    myViewModel.addPhoto(photo, marker)
 }
 
 private fun takePhoto(context: Context,
@@ -165,3 +193,6 @@ fun CameraPreview(
         }, modifier = modifier
     )
 }
+
+
+

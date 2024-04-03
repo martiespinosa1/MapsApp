@@ -56,6 +56,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.layout.ContentScale
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -115,12 +116,24 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
 
 
 
-    Column {
+    if (myViewModel.markers.value == null || myViewModel.markers.value?.size == 0) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Aún no hay marcadores")
+        }
+    } else {
         LazyColumn() {
             items(myViewModel.markers.value?.size ?: 0) { index ->
                 val marker = myViewModel.markers.value?.getOrNull(index)
                 if (marker != null) {
-                    MarkerItem(marker = marker, navController = navController, myViewModel = myViewModel)
+                    MarkerItem(
+                        marker = marker,
+                        navController = navController,
+                        myViewModel = myViewModel
+                    )
                 }
             }
         }
@@ -149,22 +162,20 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier.padding(8.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .background(Color.Gray)
-                .fillMaxWidth()
-        ) {
+        Column {
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Filled.LocationOn,
-                    contentDescription = "Location",
-                    tint = Color.Red,
-                    modifier = Modifier.size(100.dp)
-                )
+                Column {
+                    Icon(
+                        imageVector = Icons.Filled.LocationOn,
+                        contentDescription = "Location",
+                        tint = Color.Red,
+                        modifier = Modifier.size(100.dp)
+                    )
+                }
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start,
@@ -187,6 +198,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     )
                     Spacer(modifier = Modifier.size(12.dp))
                     Button(onClick = {
+                        myViewModel.currentMarker = marker
                         navController.navigate(Routes.TakePhoto.route)
                     }) {
                         Text("Take photo")
@@ -200,18 +212,20 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                         Text("Delete Marker")
                     }
 
-                    LazyRow {
-                        if (myViewModel.fotos != null) {
-                            myViewModel.fotos.value?.let {
-                                items(it.size) {
-                                    GlideImage(
-                                        model = myViewModel.fotos.value!![it],
-                                        contentDescription = "Marker's Photo",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.size(100.dp).padding(8.dp)
-                                    )
-                                }
-                            }
+                }
+            }
+            if (marker.fotos != null && marker.fotos?.size != 0) {
+                LazyRow {
+                    marker.fotos?.let {
+                        items(it.size) {
+                            GlideImage(
+                                model = marker.fotos[it],
+                                contentDescription = "Marker's Photo",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(8.dp)
+                            )
                         }
                     }
                 }
