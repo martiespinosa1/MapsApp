@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -40,12 +42,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mapsapp.MainActivity
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.navigation.Routes
@@ -137,12 +142,14 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
 //            Icon(Icons.Filled.Add, contentDescription = "Add marker", tint = Color.White)
 //        }
 
+
+        // TODO: REVISAR ESTO (al poner imagenes en la creacion del marker, se crea el marker pero no lo muestra en el mapa)
         if (isPopupVisible == true) {
             PopupWithTextField(myViewModel, navController,
                 onDismiss = { myViewModel.changePopUpVisibility(false) },
-                onTextFieldSubmitted = { name, type, foto ->
+                onTextFieldSubmitted = { name, type, fotos ->
                     val currentMarkers = myViewModel.markers.value ?: mutableListOf()
-                    mutableListOf(foto)?.let { MarkerInfo(name = name, coordinates = popupCoordinates, type = type, fotos = mutableListOf()) }
+                    mutableListOf(fotos)?.let { MarkerInfo(name = name, coordinates = popupCoordinates, type = type, fotos = fotos) }
                         ?.let { currentMarkers.add(it) }
                     myViewModel.markers.value = currentMarkers
                     myViewModel.changePopUpVisibility(false)
@@ -157,7 +164,9 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
 
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class,
+    ExperimentalGlideComposeApi::class
+)
 @Composable
 fun PopupWithTextField(
     myViewModel: ViewModel,
@@ -274,6 +283,20 @@ fun PopupWithTextField(
                                 }
                             )
                         }
+                    }
+                }
+
+                LazyRow {
+                    items(myViewModel.photosInTransit.size) { index ->
+                        GlideImage(
+                            model = myViewModel.photosInTransit[index],
+                            contentDescription = "Marker's Photo",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(8.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                        )
                     }
                 }
 

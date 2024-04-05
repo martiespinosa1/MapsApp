@@ -1,7 +1,6 @@
 package com.example.mapsapp.viewmodel
 
 import android.graphics.Bitmap
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mapsapp.model.MarkerInfo
