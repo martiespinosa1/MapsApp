@@ -1,13 +1,11 @@
 package com.example.mapsapp.view
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
-import android.net.Uri
+import android.graphics.Matrix
 import android.os.Build
-import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,7 +23,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Cameraswitch
@@ -45,23 +42,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.mapsapp.R
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.viewmodel.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.lang.Exception
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -116,7 +106,11 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                     horizontalArrangement = Arrangement.SpaceAround,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    IconButton(onClick = { navController.popBackStack() }
+                    IconButton(
+                        onClick = {
+                            myViewModel.changeTakePhotoFromCreateMarker(false)
+                            navController.popBackStack()
+                        }
                     ) {
                         Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Go back")
                     }
@@ -138,8 +132,14 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                         Icon(imageVector = Icons.Default.Photo, contentDescription = "Open gallery")
                     }
                     IconButton(onClick = {
-                        takePhoto(context, controller) { photo ->
-                            addPotoToMarker(myViewModel.currentMarker, photo, myViewModel)
+                        if (myViewModel.takePhotoFromCreateMarker.value == true) {
+                            takePhoto(context, controller) { photo ->
+                                myViewModel.photosInTransit.add(photo)
+                            }
+                        } else {
+                            takePhoto(context, controller) { photo ->
+                                addPotoToMarker(myViewModel.currentMarker, photo, myViewModel)
+                            }
                         }
                     }) {
                         Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
@@ -166,7 +166,9 @@ private fun takePhoto(context: Context,
         object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
                 super.onCaptureSuccess(image)
-                onPhotoTaken(image.toBitmap())
+                val bitmap = rotateImageIfNeeded(image.toBitmap(), image.imageInfo.rotationDegrees)
+                onPhotoTaken(bitmap)
+                image.close()
             }
 
             override fun onError(exception: ImageCaptureException) {
@@ -178,6 +180,15 @@ private fun takePhoto(context: Context,
 }
 
 
+
+private fun rotateImageIfNeeded(bitmap: Bitmap, rotationDegrees: Int): Bitmap {
+    return if (rotationDegrees != 0) {
+        val matrix = Matrix().apply { postRotate(rotationDegrees.toFloat()) }
+        Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    } else {
+        bitmap
+    }
+}
 
 
 @Composable

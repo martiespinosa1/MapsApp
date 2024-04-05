@@ -54,6 +54,8 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
@@ -62,6 +64,8 @@ import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MarkerList(myViewModel: ViewModel, navController: NavController) {
+    val markerState by myViewModel.markers.observeAsState()
+
     val context = LocalContext.current
     val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
     val shouldShowPermissionRationale by myViewModel.shouldShowPermissionRationale.observeAsState(false)
@@ -116,21 +120,21 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
 
 
 
-    if (myViewModel.markers.value == null || myViewModel.markers.value?.size == 0) {
+    if (markerState == null || (markerState?.size ?: 0) == 0) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Aún no hay marcadores")
+            Text(text = "No markers yet")
         }
     } else {
         LazyColumn() {
             items(myViewModel.markers.value?.size ?: 0) { index ->
-                val marker = myViewModel.markers.value?.getOrNull(index)
-                if (marker != null) {
+                val currentMarker = markerState?.getOrNull(index)
+                if (currentMarker != null) {
                     MarkerItem(
-                        marker = marker,
+                        marker = currentMarker,
                         navController = navController,
                         myViewModel = myViewModel
                     )
@@ -181,21 +185,25 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    Text(
-                        text = marker.name,
-                        color = Color.LightGray,
-                        fontSize = 23.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace
-                    )
+                    if (marker.name != "") {
+                        Text(
+                            text = marker.name,
+                            color = Color.LightGray,
+                            fontSize = 23.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
                     Spacer(modifier = Modifier.size(4.dp))
-                    Text(
-                        text = marker.type,
-                        color = Color.LightGray,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace
-                    )
+                    if (marker.type != "Marker Type") {
+                        Text(
+                            text = marker.type,
+                            color = Color.LightGray,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
                     Spacer(modifier = Modifier.size(12.dp))
                     Button(onClick = {
                         myViewModel.currentMarker = marker
@@ -211,20 +219,20 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     }) {
                         Text("Delete Marker")
                     }
-
                 }
             }
-            if (marker.fotos != null && marker.fotos?.size != 0) {
+            if (!marker.fotos.isNullOrEmpty()) {
                 LazyRow {
                     marker.fotos?.let {
-                        items(it.size) {
+                        items(it.size) { index ->
                             GlideImage(
-                                model = marker.fotos[it],
+                                model = marker.fotos[index],
                                 contentDescription = "Marker's Photo",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .size(100.dp)
                                     .padding(8.dp)
+                                    .clip(RoundedCornerShape(8.dp))
                             )
                         }
                     }

@@ -21,7 +21,17 @@ class ViewModel: ViewModel() {
     var currentMarker = _currentMarker
 
     private val _fotos = MutableLiveData<MutableList<Bitmap>>(mutableListOf())
-    val fotos: LiveData<MutableList<Bitmap>> = _fotos
+    val fotos = _fotos
+
+    private val _photosInTransit = mutableListOf<Bitmap>()
+    var photosInTransit = _photosInTransit
+
+    private var _takePhotoFromCreateMarker = MutableLiveData(false)
+    var takePhotoFromCreateMarker = _takePhotoFromCreateMarker
+
+    private var _isPopupVisible = MutableLiveData(false)
+    var isPopupVisible = _isPopupVisible
+
 
 
     private val _cameraPermissionGrented = MutableLiveData(false)
@@ -55,5 +65,18 @@ class ViewModel: ViewModel() {
         currentList?.remove(markerInfo)
         _markers.value = currentList
     }
+
+    fun changePopUpVisibility(value: Boolean) {
+        _isPopupVisible.value = value
+    }
+
+    fun changeTakePhotoFromCreateMarker(value: Boolean) {
+        _takePhotoFromCreateMarker.value = value
+    }
+
+    fun addImageToTransit(image: Bitmap) {
+        _photosInTransit.add(image)
+    }
+
 
 }

@@ -14,15 +14,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -36,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -63,7 +67,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 fun Map(myViewModel: ViewModel, navController: NavController) {
     //val markers = remember { mutableStateListOf<MarkerInfo>() }
     val myMarkers: List<MarkerInfo> by myViewModel.markers.observeAsState(emptyList())
-    val (showPopup, setShowPopup) = remember { mutableStateOf(false) }
+    val isPopupVisible by myViewModel.isPopupVisible.observeAsState()
     val (popupCoordinates, setPopupCoordinates) = remember { mutableStateOf(LatLng(0.0, 0.0)) }
 
     Box(
@@ -102,7 +106,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
 
             onMapLongClick = { coordinates ->
                 setPopupCoordinates(coordinates)
-                setShowPopup(true)
+                myViewModel.changePopUpVisibility(true)
             }
         ) {
 //            Marker(
@@ -133,15 +137,15 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
 //            Icon(Icons.Filled.Add, contentDescription = "Add marker", tint = Color.White)
 //        }
 
-        if (showPopup) {
+        if (isPopupVisible == true) {
             PopupWithTextField(myViewModel, navController,
-                onDismiss = { setShowPopup(false) },
+                onDismiss = { myViewModel.changePopUpVisibility(false) },
                 onTextFieldSubmitted = { name, type, foto ->
                     val currentMarkers = myViewModel.markers.value ?: mutableListOf()
-                    mutableListOf(foto)?.let { MarkerInfo(name = name, coordinates = popupCoordinates, type = type, fotos = it) }
+                    mutableListOf(foto)?.let { MarkerInfo(name = name, coordinates = popupCoordinates, type = type, fotos = mutableListOf()) }
                         ?.let { currentMarkers.add(it) }
                     myViewModel.markers.value = currentMarkers
-                    setShowPopup(false)
+                    myViewModel.changePopUpVisibility(false)
                 }
             )
         }
@@ -159,12 +163,12 @@ fun PopupWithTextField(
     myViewModel: ViewModel,
     navController: NavController,
     onDismiss: () -> Unit,
-    onTextFieldSubmitted: (String, String, Bitmap?) -> Unit
+    onTextFieldSubmitted: (String, String, MutableList<Bitmap>?) -> Unit
 ) {
     var textFieldValue by remember { mutableStateOf("") }
     val expanded = remember { mutableStateOf(false) }
-    val type = remember { mutableStateOf("Otro") }
-    val fotos = remember { mutableStateOf(mutableListOf<Bitmap>()) }
+    val type = remember { mutableStateOf("Marker Type") }
+    var fotos = remember { mutableStateOf(mutableListOf<Bitmap>()) }
 
     val context = LocalContext.current
     val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
@@ -198,66 +202,99 @@ fun PopupWithTextField(
 //        )
     ) {
         Surface(
-            modifier = Modifier.padding(horizontal = 32.dp).padding(bottom = 32.dp)
+            modifier = Modifier
+                .padding(horizontal = 32.dp)
+                .padding(bottom = 32.dp)
         ) {
             Column {
                 Text(
                     text = "Add Marker",
-                    fontSize = 32.sp
+                    fontSize = 32.sp,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                TextField(
-                    value = textFieldValue,
-                    onValueChange = { textFieldValue = it },
-                    label = { Text("Enter marker name") },
+                Row(horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedButton(onClick = { expanded.value = true }) {
-                    Text("Tipo: ${type.value}")
-                }
-
-                DropdownMenu(
-                    expanded = expanded.value,
-                    onDismissRequest = { expanded.value = false }
                 ) {
-                    DropdownMenuItem(
-                        text = { Text("Otro") },
-                        onClick = {
-                            type.value = "Otro"
-                            expanded.value = false
-                        }
+                    TextField(
+                        value = textFieldValue,
+                        onValueChange = { textFieldValue = it },
+                        label = { Text("Marker Name") },
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .clip(RoundedCornerShape(8.dp))
                     )
-                    DropdownMenuItem(
-                        text = { Text("Montaña") },
-                        onClick = {
-                            type.value = "Montaña"
-                            expanded.value = false
+
+                    OutlinedButton(
+                        onClick = { expanded.value = true },
+                        modifier = Modifier.clip(shape = MaterialTheme.shapes.small)
+                    ) {
+                        Text(type.value)
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        DropdownMenu(
+                            expanded = expanded.value,
+                            onDismissRequest = { expanded.value = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Shop") },
+                                onClick = {
+                                    type.value = "Shop"
+                                    expanded.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Restaurant") },
+                                onClick = {
+                                    type.value = "Restaurant"
+                                    expanded.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Gym") },
+                                onClick = {
+                                    type.value = "Gym"
+                                    expanded.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Puf") },
+                                onClick = {
+                                    type.value = "Puf"
+                                    expanded.value = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Mountain") },
+                                onClick = {
+                                    type.value = "Mountain"
+                                    expanded.value = false
+                                }
+                            )
                         }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Bar") },
-                        onClick = {
-                            type.value = "Bar"
-                            expanded.value = false
-                        }
-                    )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Button(onClick = {
+                    myViewModel.changeTakePhotoFromCreateMarker(true)
+                    navController.navigate(Routes.TakePhoto.route)
+                }) {
+                    Text("Take photo")
+                }
+
                 Button(
                     onClick = {
-                        var foto: Bitmap? = null
-                        if (fotos.value.size > 0) {
-                            foto = fotos.value[0]
-                        }
-                        onTextFieldSubmitted(textFieldValue, type.value, foto)
+                        onTextFieldSubmitted(textFieldValue, type.value, myViewModel.photosInTransit)
+                        myViewModel.photosInTransit = mutableListOf()
                         onDismiss()
                     },
-                    //modifier = Modifier.align(Alignment.End)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Submit")
+                    Text("Save")
                 }
             }
             if (showPermissionDenied) {
