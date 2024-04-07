@@ -55,7 +55,7 @@ class ViewModel: ViewModel() {
     }
 
     fun addPhoto(photo: Bitmap, markerInfo: MarkerInfo) {
-        val currentList = markerInfo.fotos
+        val currentList = markerInfo.photos
         currentList?.add(photo)
     }
 

@@ -11,6 +11,8 @@ import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +44,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -104,11 +108,13 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             uiSettings = MapUiSettings(
-                zoomControlsEnabled = false ,
+                zoomControlsEnabled = false,
                 myLocationButtonEnabled = true
             ),
-            properties = MapProperties(isMyLocationEnabled = true, isBuildingEnabled = true),
-
+            properties = MapProperties(
+                isMyLocationEnabled = true,
+                isBuildingEnabled = true
+            ),
             onMapLongClick = { coordinates ->
                 setPopupCoordinates(coordinates)
                 myViewModel.changePopUpVisibility(true)
@@ -120,16 +126,12 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
 //                snippet = "Fucking Burpees"
 //            )
 
-
-
-            myMarkers.forEach { coordinates ->
-                myMarkers.forEach { markerInfo ->
-                    Marker(
-                        state = MarkerState(position = markerInfo.coordinates),
-                        title = markerInfo.name,
-                        snippet = "Type: ${markerInfo.type}"
-                    )
-                }
+            myMarkers.forEach { marker ->
+                Marker(
+                    state = MarkerState(position = marker.coordinates),
+                    title = marker.name,
+                    snippet = "Type: ${marker.type}"
+                )
             }
         }
 
@@ -147,10 +149,10 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
         if (isPopupVisible == true) {
             PopupWithTextField(myViewModel, navController,
                 onDismiss = { myViewModel.changePopUpVisibility(false) },
-                onTextFieldSubmitted = { name, type, fotos ->
+                onTextFieldSubmitted = { name, type, photos ->
                     val currentMarkers = myViewModel.markers.value ?: mutableListOf()
-                    mutableListOf(fotos)?.let { MarkerInfo(name = name, coordinates = popupCoordinates, type = type, fotos = fotos) }
-                        ?.let { currentMarkers.add(it) }
+                    val newMarker = MarkerInfo(name = name, coordinates = popupCoordinates, type = type, photos = photos)
+                    currentMarkers.add(newMarker)
                     myViewModel.markers.value = currentMarkers
                     myViewModel.changePopUpVisibility(false)
                 }
@@ -177,7 +179,7 @@ fun PopupWithTextField(
     var textFieldValue by remember { mutableStateOf("") }
     val expanded = remember { mutableStateOf(false) }
     val type = remember { mutableStateOf("Marker Type") }
-    var fotos = remember { mutableStateOf(mutableListOf<Bitmap>()) }
+    //var fotos = remember { mutableStateOf(mutableListOf<Bitmap>()) }
 
     val context = LocalContext.current
     val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
@@ -222,18 +224,20 @@ fun PopupWithTextField(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
+                TextField(
+                    value = textFieldValue,
+                    onValueChange = { textFieldValue = it },
+                    label = { Text("Marker Name") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(32.dp))
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Row(horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextField(
-                        value = textFieldValue,
-                        onValueChange = { textFieldValue = it },
-                        label = { Text("Marker Name") },
-                        modifier = Modifier
-                            .fillMaxWidth(0.7f)
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-
                     OutlinedButton(
                         onClick = { expanded.value = true },
                         modifier = Modifier.clip(shape = MaterialTheme.shapes.small)
@@ -269,9 +273,9 @@ fun PopupWithTextField(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Puf") },
+                                text = { Text("Pub") },
                                 onClick = {
-                                    type.value = "Puf"
+                                    type.value = "Pub"
                                     expanded.value = false
                                 }
                             )
@@ -283,6 +287,17 @@ fun PopupWithTextField(
                                 }
                             )
                         }
+                    }
+                    Button(onClick = {
+                        myViewModel.changeTakePhotoFromCreateMarker(true)
+                        navController.navigate(Routes.TakePhoto.route)
+                    }) {
+                        Text("Take photo")
+                    }
+                    Button(onClick = {
+                        // LOGICA PARA ABRIR LA GALERIA
+                    }) {
+                        Text("Gallery")
                     }
                 }
 
@@ -300,14 +315,7 @@ fun PopupWithTextField(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(onClick = {
-                    myViewModel.changeTakePhotoFromCreateMarker(true)
-                    navController.navigate(Routes.TakePhoto.route)
-                }) {
-                    Text("Take photo")
-                }
+                Spacer(modifier = Modifier.height(96.dp))
 
                 Button(
                     onClick = {

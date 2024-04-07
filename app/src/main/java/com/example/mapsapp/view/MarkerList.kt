@@ -2,17 +2,11 @@ package com.example.mapsapp.view
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,11 +32,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.recyclerview.widget.RecyclerView
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.viewmodel.ViewModel
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
@@ -50,15 +42,9 @@ import androidx.core.app.ActivityCompat
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mapsapp.navigation.Routes
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -188,7 +174,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     if (marker.name != "") {
                         Text(
                             text = marker.name,
-                            color = Color.LightGray,
+                            //color = Color.LightGray,
                             fontSize = 23.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.Monospace
@@ -198,7 +184,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     if (marker.type != "Marker Type") {
                         Text(
                             text = marker.type,
-                            color = Color.LightGray,
+                            //color = Color.LightGray,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.Monospace
@@ -221,12 +207,12 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     }
                 }
             }
-            if (!marker.fotos.isNullOrEmpty()) {
+            if (!marker.photos.isNullOrEmpty()) {
                 LazyRow {
-                    marker.fotos?.let {
+                    marker.photos?.let {
                         items(it.size) { index ->
                             GlideImage(
-                                model = marker.fotos[index],
+                                model = marker.photos[index],
                                 contentDescription = "Marker's Photo",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
