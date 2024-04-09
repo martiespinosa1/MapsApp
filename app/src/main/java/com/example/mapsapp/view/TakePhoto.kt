@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
+import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
@@ -42,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
@@ -67,6 +69,7 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
 
     val img: Bitmap? = ContextCompat.getDrawable(context, R.drawable.empty_image)?.toBitmap()
     var bitmap by remember { mutableStateOf(img) }
+    var uri by remember { mutableStateOf<Uri?>(null) }
     val launchImage = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = {
@@ -80,6 +83,7 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                     ImageDecoder.decodeBitmap(itl)
                 }
             }
+            uri = it
         }
     )
 

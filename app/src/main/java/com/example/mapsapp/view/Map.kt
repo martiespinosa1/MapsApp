@@ -145,7 +145,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
 //        }
 
 
-        // TODO: REVISAR ESTO (al poner imagenes en la creacion del marker, se crea el marker pero no lo muestra en el mapa)
+        // TODO: REVISAR ESTO (al poner imagenes en la creacion del marker, lo crea en la posicion 0,0)
         if (isPopupVisible == true) {
             PopupWithTextField(myViewModel, navController,
                 onDismiss = { myViewModel.changePopUpVisibility(false) },
@@ -314,8 +314,6 @@ fun PopupWithTextField(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(96.dp))
 
                 Button(
                     onClick = {
