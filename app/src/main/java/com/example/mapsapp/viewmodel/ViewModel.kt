@@ -15,13 +15,13 @@ class ViewModel: ViewModel() {
 
     // AQUI SE TIENEN QUE PONER COSAS QUE ESTAN EN OTRAS SCREENS
 
-    private var _marker = MutableLiveData(MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null))
+    private var _marker = MutableLiveData(MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null, ""))
     var marker = _marker
 
     private var _markers = MutableLiveData<MutableList<MarkerInfo>>()
     val markers = _markers
 
-    private var _currentMarker: MarkerInfo = MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null)
+    private var _currentMarker: MarkerInfo = MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null, "")
     var currentMarker = _currentMarker
 
     private val _fotos = MutableLiveData<MutableList<Bitmap>>(mutableListOf())
@@ -85,6 +85,7 @@ class ViewModel: ViewModel() {
 
 
     // FIREBASE
+    // USERS
     private val repository = Repo()
 
     private var _userList: MutableLiveData<MutableList<UserModel>> = MutableLiveData(mutableListOf())
@@ -134,6 +135,13 @@ class ViewModel: ViewModel() {
             }
         }
     }
+
+
+
+
+
+
+
 
 
     // Firebase authentication

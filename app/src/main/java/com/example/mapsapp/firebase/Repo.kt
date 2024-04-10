@@ -1,5 +1,6 @@
 package com.example.mapsapp.firebase
 
+import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.model.UserModel
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
@@ -8,6 +9,37 @@ import com.google.firebase.firestore.FirebaseFirestore
 class Repo {
     private val database = FirebaseFirestore.getInstance()
 
+
+    // --------------------- MARKERS ----------------------------
+    fun addMarker(marker: MarkerInfo) {
+        database.collection("markers")
+            .add(
+                hashMapOf(
+                    "name" to marker.name,
+                    "coordinates" to marker.coordinates,
+                    "type" to marker.type,
+                    //"photos" to marker.photos,
+                    "userId" to marker.userId,
+                    "markerId" to marker.markerId
+                )
+            )
+    }
+
+    fun editMarker(editedMarker: MarkerInfo) {
+
+    }
+
+    fun deleteMarker(userId: String) {
+    }
+
+//    fun getMarkers(): CollectionReference {
+//    }
+//
+//    fun getUser(userId: String): DocumentReference {
+//    }
+
+
+    // ----------------------- USERS --------------------------
     fun addUser(user: UserModel) {
         database.collection("users")
             .add(
@@ -38,4 +70,5 @@ class Repo {
     fun getUser(userId: String): DocumentReference {
         return database.collection("users").document(userId)
     }
+
 }

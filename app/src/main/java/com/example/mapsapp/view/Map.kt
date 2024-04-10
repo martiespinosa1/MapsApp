@@ -56,6 +56,7 @@ import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mapsapp.MainActivity
+import com.example.mapsapp.firebase.Repo
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.viewmodel.ViewModel
@@ -151,10 +152,11 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                 onDismiss = { myViewModel.changePopUpVisibility(false) },
                 onTextFieldSubmitted = { name, type, photos ->
                     val currentMarkers = myViewModel.markers.value ?: mutableListOf()
-                    val newMarker = MarkerInfo(name = name, coordinates = popupCoordinates, type = type, photos = photos)
+                    val newMarker = MarkerInfo(name = name, coordinates = popupCoordinates, type = type, photos = photos, userId = null)
                     currentMarkers.add(newMarker)
                     myViewModel.markers.value = currentMarkers
                     myViewModel.changePopUpVisibility(false)
+                    saveMarkerToFirebase(newMarker)
                 }
             )
         }
@@ -358,4 +360,10 @@ fun openAppSettings(activity: Activity) {
         data = Uri.fromParts("package", activity.packageName, null)
         flags = Intent.FLAG_ACTIVITY_NEW_TASK
     }
+}
+
+
+fun saveMarkerToFirebase(marker: MarkerInfo) {
+    val repo = Repo()
+    repo.addMarker(marker)
 }
