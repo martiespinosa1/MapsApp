@@ -208,11 +208,12 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                 }
             }
             if (!marker.photos.isNullOrEmpty()) {
+                myViewModel.getMarker(marker.markerId)
                 LazyRow {
                     marker.photos?.let {
                         items(it.size) { index ->
                             GlideImage(
-                                model = marker.photos[index],
+                                model = myViewModel.actualMarker.value?.photos?.get(index),
                                 contentDescription = "Marker's Photo",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier

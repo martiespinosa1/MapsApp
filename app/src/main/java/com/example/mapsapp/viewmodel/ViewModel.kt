@@ -93,52 +93,49 @@ class ViewModel: ViewModel() {
 
 
 
-    // FIREBASE
-    // USERS
+    // Firebase Firestore
     private val repository = Repo()
 
-    private var _userList: MutableLiveData<MutableList<UserModel>> = MutableLiveData(mutableListOf())
-    var userList = _userList
+    private var _markerList: MutableLiveData<MutableList<MarkerInfo>> = MutableLiveData(mutableListOf())
+    var markerList = _markerList
 
-    private var _actualUser: MutableLiveData<UserModel> = MutableLiveData(UserModel(null, "", ""))
-    var actualUser = _actualUser
+    private var _actualMarker: MutableLiveData<MarkerInfo> = MutableLiveData(MarkerInfo("", LatLng(0.0, 0.0), "Type", null, ""))
+    var actualMarker = _actualMarker
 
-    private var _email: MutableLiveData<String> = MutableLiveData("")
+//    private var _email: MutableLiveData<String> = MutableLiveData("")
+//
+//    private var _password: MutableLiveData<String> = MutableLiveData("")
+//
+//    fun getUsers() {
+//        repository.getUsers().addSnapshotListener { value, error ->
+//            if (error != null) {
+//                Log.e("Firebase error", error.message.toString())
+//                return@addSnapshotListener
+//            }
+//            val tempList = mutableListOf<UserModel>()
+//            for (dc: DocumentChange in value?.documentChanges!!) {
+//                if (dc.type == DocumentChange.Type.ADDED) {
+//                    val newUser = dc.document.toObject(UserModel::class.java)
+//                    newUser.userId = dc.document.id
+//                    tempList.add(newUser)
+//                }
+//            }
+//            _userList.value = tempList
+//        }
+//    }
 
-    private var _password: MutableLiveData<String> = MutableLiveData("")
-
-    fun getUsers() {
-        repository.getUsers().addSnapshotListener { value, error ->
-            if (error != null) {
-                Log.e("Firebase error", error.message.toString())
-                return@addSnapshotListener
-            }
-            val tempList = mutableListOf<UserModel>()
-            for (dc: DocumentChange in value?.documentChanges!!) {
-                if (dc.type == DocumentChange.Type.ADDED) {
-                    val newUser = dc.document.toObject(UserModel::class.java)
-                    newUser.userId = dc.document.id
-                    tempList.add(newUser)
-                }
-            }
-            _userList.value = tempList
-        }
-    }
-
-    fun getUser(userId: String) {
-        repository.getUser(userId).addSnapshotListener { value, error ->
+    fun getMarker(markerId: String) {
+        repository.getMarker(markerId).addSnapshotListener { value, error ->
             if (error != null) {
                 Log.w("UserRepository", "Listen Failed", error)
                 return@addSnapshotListener
             }
             if (value != null && value.exists()) {
-                val user = value.toObject(UserModel::class.java)
-                if (user != null) {
-                    user.userId = userId
+                val marker = value.toObject(MarkerInfo::class.java)
+                if (marker != null) {
+                    marker.markerId = markerId
                 }
-                _actualUser.value = user
-                _email.value = _actualUser.value!!.email
-                _password.value = _actualUser.value!!.password
+                _actualMarker.value = marker
             } else {
                 Log.d("UserRepository", "Current dat: null")
             }
@@ -153,7 +150,7 @@ class ViewModel: ViewModel() {
 
 
 
-    // Firebase authentication
+    // Firebase Authentication
     private var auth = FirebaseAuth.getInstance()
 
     private var _userId: MutableLiveData<String> = MutableLiveData("")

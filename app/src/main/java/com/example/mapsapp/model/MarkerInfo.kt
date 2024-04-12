@@ -10,5 +10,5 @@ data class MarkerInfo(
     val type: String,
     val photos: MutableList<String>?,
     val userId: String?,
-    val markerId: String = UUID.randomUUID().toString()
+    var markerId: String = UUID.randomUUID().toString()
 )

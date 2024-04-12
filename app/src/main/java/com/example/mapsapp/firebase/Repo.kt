@@ -18,7 +18,7 @@ class Repo {
                     "name" to marker.name,
                     "coordinates" to marker.coordinates,
                     "type" to marker.type,
-                    //"photos" to marker.photos,
+                    "photos" to marker.photos,
                     "userId" to marker.userId,
                     "markerId" to marker.markerId
                 )
@@ -34,9 +34,10 @@ class Repo {
 
 //    fun getMarkers(): CollectionReference {
 //    }
-//
-//    fun getUser(userId: String): DocumentReference {
-//    }
+
+    fun getMarker(markerId: String): DocumentReference {
+        return database.collection("markers").document(markerId)
+    }
 
 
     // ----------------------- USERS --------------------------
