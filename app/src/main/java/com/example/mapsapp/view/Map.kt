@@ -5,8 +5,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.location.Location
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -52,10 +55,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mapsapp.MainActivity
+import com.example.mapsapp.R
 import com.example.mapsapp.firebase.Repo
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.navigation.Routes
@@ -176,11 +182,11 @@ fun PopupWithTextField(
     myViewModel: ViewModel,
     navController: NavController,
     onDismiss: () -> Unit,
-    onTextFieldSubmitted: (String, String, MutableList<Bitmap>?) -> Unit
+    onTextFieldSubmitted: (String, String, MutableList<String>?) -> Unit
 ) {
     var textFieldValue by remember { mutableStateOf("") }
     val expanded = remember { mutableStateOf(false) }
-    val type = remember { mutableStateOf("Marker Type") }
+    val type = remember { mutableStateOf("Type") }
     //var fotos = remember { mutableStateOf(mutableListOf<Bitmap>()) }
 
     val context = LocalContext.current
@@ -206,6 +212,30 @@ fun PopupWithTextField(
             }
         }
     }
+
+    val img: Bitmap? = ContextCompat.getDrawable(context, R.drawable.empty_image)?.toBitmap()
+    var bitmap by remember { mutableStateOf(img) }
+    //var uri by remember { mutableStateOf<Uri?>(null) }
+    val launchImage = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = {
+            if (Build.VERSION.SDK_INT < 28) {
+                bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                if (it != null) {
+                    myViewModel.uploadImage(it)
+                }
+            } else {
+                val source = it?.let { itl ->
+                    ImageDecoder.createSource(context.contentResolver, itl) }
+
+                source?.let { itl ->  ImageDecoder.decodeBitmap(itl) }
+                if (it != null) {
+                    myViewModel.uploadImage(it)
+                }
+            }
+            //uri = it
+        }
+    )
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -297,7 +327,7 @@ fun PopupWithTextField(
                         Text("Take photo")
                     }
                     Button(onClick = {
-                        // LOGICA PARA ABRIR LA GALERIA
+                        launchImage.launch("image/*")
                     }) {
                         Text("Gallery")
                     }

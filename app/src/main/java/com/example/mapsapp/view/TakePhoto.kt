@@ -47,6 +47,7 @@ import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.example.mapsapp.R
 import com.example.mapsapp.model.MarkerInfo
@@ -54,6 +55,7 @@ import com.example.mapsapp.viewmodel.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import java.net.URI
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -69,21 +71,25 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
 
     val img: Bitmap? = ContextCompat.getDrawable(context, R.drawable.empty_image)?.toBitmap()
     var bitmap by remember { mutableStateOf(img) }
-    var uri by remember { mutableStateOf<Uri?>(null) }
+    //var uri by remember { mutableStateOf<Uri?>(null) }
     val launchImage = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = {
-            bitmap = if (Build.VERSION.SDK_INT < 28) {
-                MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+            if (Build.VERSION.SDK_INT < 28) {
+                bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                if (it != null) {
+                    myViewModel.uploadImage(it)
+                }
             } else {
                 val source = it?.let { itl ->
-                    ImageDecoder.createSource(context.contentResolver, itl)
-                }
-                source?.let { itl ->
-                    ImageDecoder.decodeBitmap(itl)
+                    ImageDecoder.createSource(context.contentResolver, itl) }
+
+                source?.let { itl ->  ImageDecoder.decodeBitmap(itl) }
+                if (it != null) {
+                    myViewModel.uploadImage(it)
                 }
             }
-            uri = it
+            //uri = it
         }
     )
 
@@ -131,18 +137,22 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                         Icon(imageVector = Icons.Default.Cameraswitch, contentDescription = "Switch camera")
                     }
                     IconButton(onClick = {
-                        launchImage.launch("*image/*")
+                        launchImage.launch("image/*")
                     }) {
                         Icon(imageVector = Icons.Default.Photo, contentDescription = "Open gallery")
                     }
                     IconButton(onClick = {
                         if (myViewModel.takePhotoFromCreateMarker.value == true) {
                             takePhoto(context, controller) { photo ->
-                                myViewModel.photosInTransit.add(photo)
+                                //myViewModel.photosInTransit.add(photo)
                             }
                         } else {
                             takePhoto(context, controller) { photo ->
-                                addPotoToMarker(myViewModel.currentMarker, photo, myViewModel)
+                                val newUriPhoto = myViewModel.bitmapToUri(context, photo)
+                                //addPotoToMarker(myViewModel.currentMarker, photo, myViewModel)
+                                if (newUriPhoto != null) {
+                                    myViewModel.uploadImage(newUriPhoto)
+                                }
                             }
                         }
                     }) {
@@ -159,7 +169,7 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
 
 
 
-private fun addPotoToMarker(marker: MarkerInfo, photo: Bitmap, myViewModel: ViewModel) {
+private fun addPotoToMarker(marker: MarkerInfo, photo: String, myViewModel: ViewModel) {
     myViewModel.addPhoto(photo, marker)
 }
 

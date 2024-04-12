@@ -181,7 +181,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                         )
                     }
                     Spacer(modifier = Modifier.size(4.dp))
-                    if (marker.type != "Marker Type") {
+                    if (marker.type != "Type") {
                         Text(
                             text = marker.type,
                             //color = Color.LightGray,

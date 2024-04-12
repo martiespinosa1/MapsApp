@@ -1,6 +1,10 @@
 package com.example.mapsapp.viewmodel
 
+import android.content.ContentValues
+import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
+import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,6 +14,11 @@ import com.example.mapsapp.model.UserModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.storage.FirebaseStorage
+import java.io.OutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ViewModel: ViewModel() {
 
@@ -24,10 +33,10 @@ class ViewModel: ViewModel() {
     private var _currentMarker: MarkerInfo = MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null, "")
     var currentMarker = _currentMarker
 
-    private val _fotos = MutableLiveData<MutableList<Bitmap>>(mutableListOf())
+    private val _fotos = MutableLiveData<MutableList<String>>(mutableListOf())
     val fotos = _fotos
 
-    private val _photosInTransit = mutableListOf<Bitmap>()
+    private val _photosInTransit = mutableListOf<String>()
     var photosInTransit = _photosInTransit
 
     private var _takePhotoFromCreateMarker = MutableLiveData(false)
@@ -59,7 +68,7 @@ class ViewModel: ViewModel() {
         _showPermissionDenied.value = denied
     }
 
-    fun addPhoto(photo: Bitmap, markerInfo: MarkerInfo) {
+    fun addPhoto(photo: String, markerInfo: MarkerInfo) {
         val currentList = markerInfo.photos
         currentList?.add(photo)
     }
@@ -78,7 +87,7 @@ class ViewModel: ViewModel() {
         _takePhotoFromCreateMarker.value = value
     }
 
-    fun addImageToTransit(image: Bitmap) {
+    fun addImageToTransit(image: String) {
         _photosInTransit.add(image)
     }
 
@@ -186,6 +195,53 @@ class ViewModel: ViewModel() {
 
     private fun modifyProcessing() {
         _showCircularProgressBar.value = _showCircularProgressBar.value != true
+    }
+
+
+
+
+
+
+
+
+    // Firebase Storage
+    fun uploadImage(imageUri: Uri) {
+        val formatter = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault())
+        val now = Date()
+        val fileName = formatter.format(now)
+        val storage = FirebaseStorage.getInstance().getReference("images/$fileName")
+        storage.putFile(imageUri)
+            .addOnSuccessListener {
+                Log.i("IMAGE IPLOAD", "Image uploaded successfully")
+                storage.downloadUrl.addOnSuccessListener {
+                    Log.i("IMAGEN", it.toString())
+                }
+            }
+            .addOnFailureListener {
+                Log.i("IMAGE UPLOAD", "Image uploaded failed")
+            }
+    }
+
+
+
+    fun bitmapToUri(context: Context, bitmap: Bitmap): Uri? {
+        val filename = "${System.currentTimeMillis()}.jpg"
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.TITLE, filename)
+            put(MediaStore.Images.Media.DISPLAY_NAME, filename)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis())
+            put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
+        }
+
+        val uri: Uri? = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+        uri?.let {
+            val outstream: OutputStream? = context.contentResolver.openOutputStream(it)
+            outstream?.let { bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it) }
+            outstream?.close()
+        }
+
+        return uri
     }
 
 }
