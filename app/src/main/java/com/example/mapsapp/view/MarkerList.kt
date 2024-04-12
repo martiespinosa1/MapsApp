@@ -232,3 +232,16 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
 
 
 
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun ImageItem(img: String) {
+    GlideImage(
+        model = img,
+        contentDescription = "Marker's Photo",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .size(100.dp)
+            .padding(8.dp)
+            .clip(RoundedCornerShape(8.dp))
+    )
+}
