@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -42,18 +43,24 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
         val context = LocalContext.current
         val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
         var lastKnownLocation by remember { mutableStateOf<Location?>(null) }
-        var deviceLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
-        val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f) }
+        //var deviceLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+        val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(myViewModel.deviceLatLng.value!!, 18f) }
         val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
-        locationResult.addOnCompleteListener(context as MainActivity) { task ->
-            if (task.isSuccessful) {
-                lastKnownLocation = task.result
-                deviceLatLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(deviceLatLng, 18f)
-            } else {
-                Log.e("Error", "Exception: %s", task.exception)
+        // Obtener la ubicación actual solo si lastKnownLocation es null
+        if (lastKnownLocation == null) {
+            val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
+            locationResult.addOnCompleteListener(context as MainActivity) { task ->
+                if (task.isSuccessful) {
+                    lastKnownLocation = task.result
+                    myViewModel.deviceLatLng.value = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(myViewModel.deviceLatLng.value!!, 18f)
+                } else {
+                    Log.e("Error", "Exception: %s", task.exception)
+                }
             }
         }
+
+
 
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -68,6 +75,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             ),
             onMapLongClick = { coordinates ->
                 setPopupCoordinates(coordinates)
+                myViewModel.deviceLatLng.value = popupCoordinates
                 myViewModel.changePopUpVisibility(true)
             }
         ) {

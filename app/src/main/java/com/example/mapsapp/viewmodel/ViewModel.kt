@@ -28,6 +28,9 @@ class ViewModel: ViewModel() {
 
     // AQUI SE TIENEN QUE PONER COSAS QUE ESTAN EN OTRAS SCREENS
 
+    var deviceLatLng: MutableLiveData<LatLng> = MutableLiveData(LatLng(0.0, 0.0))
+
+
     private var _marker = MutableLiveData(MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null, ""))
     var marker = _marker
 

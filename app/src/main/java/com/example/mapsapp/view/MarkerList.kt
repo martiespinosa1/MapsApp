@@ -105,15 +105,11 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
     Card(
         onClick = {
             navController.navigate(Routes.Map.route) {
+                myViewModel.deviceLatLng.value = marker.coordinates // TODO: No va
                 launchSingleTop = true
                 popUpTo(Routes.Map.route) {
                     saveState = true
                 }
-//                navController.graph.startDestinationRoute?.let { route ->
-//                    navigate(route) {
-//                        putParcelable("marker", marker)
-//                    }
-//                }
             }
         },
         border = BorderStroke(3.dp, Color.LightGray),
