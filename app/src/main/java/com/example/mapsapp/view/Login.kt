@@ -4,11 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -32,7 +30,7 @@ fun LogIn() {
         Box(
             modifier = Modifier
                 .width(300.dp)
-                .height(200.dp)
+                .height(350.dp)
                 .background(Color.Blue.copy(alpha = 0.6f), shape = RoundedCornerShape(15.dp))
                 .padding(16.dp)
         ) {
@@ -42,7 +40,6 @@ fun LogIn() {
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
-
         }
 
         Button(onClick = { },
@@ -52,7 +49,6 @@ fun LogIn() {
                 fontSize = 18.sp
             )
         }
-
     }
 }
 
@@ -60,6 +56,5 @@ fun LogIn() {
 @Preview(showBackground = true)
 @Composable
 fun LogInPreview() {
-    // Llama a tu función LogIn dentro del preview
     LogIn()
 }

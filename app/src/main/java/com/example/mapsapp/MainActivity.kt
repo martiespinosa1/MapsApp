@@ -195,7 +195,6 @@ fun MyTopAppBar(myViewModel: ViewModel, state: DrawerState) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScaffold(myViewModel: ViewModel, state: DrawerState, navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -212,11 +211,10 @@ fun MyScaffold(myViewModel: ViewModel, state: DrawerState, navController: NavCon
             ) {
                 NavHost(
                     navController = navController as NavHostController,
-                    startDestination = Routes.Map.route
+                    startDestination = Routes.Launch.route
                 ) {
                     composable(Routes.Launch.route) { LaunchAnimation(navController) }
                     composable(Routes.Map.route) { Map(myViewModel, navController) }
-                    composable(Routes.AddMarker.route) { AddMarker() }
                     composable(Routes.MarkerList.route) { MarkerList(myViewModel, navController) }
                     composable(Routes.TakePhoto.route) { TakePhoto(myViewModel, navController) }
                 }

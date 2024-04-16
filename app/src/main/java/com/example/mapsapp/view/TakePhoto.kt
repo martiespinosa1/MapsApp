@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
-import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
@@ -18,12 +17,18 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Cameraswitch
@@ -31,6 +36,7 @@ import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,13 +47,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.example.mapsapp.R
 import com.example.mapsapp.model.MarkerInfo
@@ -55,12 +62,13 @@ import com.example.mapsapp.viewmodel.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import java.net.URI
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
     val myMarkers: List<MarkerInfo> by myViewModel.markers.observeAsState(emptyList())
+
 
     val context = LocalContext.current
     val controller = remember {
@@ -71,7 +79,6 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
 
     val img: Bitmap? = ContextCompat.getDrawable(context, R.drawable.empty_image)?.toBitmap()
     var bitmap by remember { mutableStateOf(img) }
-    //var uri by remember { mutableStateOf<Uri?>(null) }
     val launchImage = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = {
@@ -89,7 +96,6 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                     myViewModel.uploadImage(it)
                 }
             }
-            //uri = it
         }
     )
 
@@ -99,71 +105,117 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
         cameraPermissionState.launchPermissionRequest()
     }
     if(cameraPermissionState.status.isGranted) {
-        //TakePhoto(myViewModel, navController)
-
         Box(modifier = Modifier.fillMaxSize()) {
-            CameraPreview(controller = controller, modifier = Modifier.fillMaxSize())
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .align(
-                        Alignment.BottomCenter
-                    )
+                    .background(Color.White.copy(alpha = if (myViewModel.showOverlay.value == true) 1f else 0f)),
+                contentAlignment = Alignment.Center
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    modifier = Modifier.fillMaxWidth()
+
+                CameraPreview(controller = controller, modifier = Modifier.fillMaxSize())
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .align(
+                            Alignment.BottomCenter
+                        )
                 ) {
-                    IconButton(
-                        onClick = {
-                            myViewModel.changeTakePhotoFromCreateMarker(false)
-                            navController.popBackStack()
-                        }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.DarkGray)
                     ) {
-                        Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Go back")
+                        IconButton(
+                            onClick = {
+                                myViewModel.changeTakePhotoFromCreateMarker(false)
+                                navController.popBackStack()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBackIosNew,
+                                contentDescription = "Go back"
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                controller.cameraSelector =
+                                    if (controller.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                                        CameraSelector.DEFAULT_FRONT_CAMERA
+                                    } else {
+                                        CameraSelector.DEFAULT_BACK_CAMERA
+                                    }
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Cameraswitch,
+                                contentDescription = "Switch camera"
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                launchImage.launch("image/*")
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Photo,
+                                contentDescription = "Open gallery"
+                            )
+                        }
                     }
-                    IconButton(
-                        onClick = {
-                            controller.cameraSelector =
-                                if (controller.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
-                                    CameraSelector.DEFAULT_FRONT_CAMERA
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    ) {
+                        IconButton(
+                            onClick = {
+                                myViewModel.showOverlay.value = true
+
+                                if (myViewModel.takePhotoFromCreateMarker.value == true) {
+                                    takePhoto(context, controller) { photo ->
+                                        // TODO: MIRAR ESTO PARA LAS IMAGENES
+                                        myViewModel.photosInTransit.add(photo.toString())
+                                        val newUriPhoto = myViewModel.bitmapToUri(context, photo)
+                                        if (newUriPhoto != null) {
+                                            myViewModel.uploadImage(newUriPhoto)
+                                        }
+                                    }
                                 } else {
-                                    CameraSelector.DEFAULT_BACK_CAMERA
+                                    takePhoto(context, controller) { photo ->
+                                        val newUriPhoto = myViewModel.bitmapToUri(context, photo)
+                                        // TODO: MIRAR ESTO PARA LAS IMAGENES
+                                        addPotoToMarker(
+                                            myViewModel.currentMarker,
+                                            photo.toString(),
+                                            myViewModel
+                                        )
+                                        if (newUriPhoto != null) {
+                                            myViewModel.uploadImage(newUriPhoto)
+                                        }
+                                    }
                                 }
-                        },
-                    ) {
-                        Icon(imageVector = Icons.Default.Cameraswitch, contentDescription = "Switch camera")
-                    }
-                    IconButton(onClick = {
-                        launchImage.launch("image/*")
-                    }) {
-                        Icon(imageVector = Icons.Default.Photo, contentDescription = "Open gallery")
-                    }
-                    IconButton(onClick = {
-                        if (myViewModel.takePhotoFromCreateMarker.value == true) {
-                            takePhoto(context, controller) { photo ->
-                                // TODO: MIRAR ESTO PARA LAS IMAGENES
-                                myViewModel.photosInTransit.add(photo.toString())
-                                val newUriPhoto = myViewModel.bitmapToUri(context, photo)
-                                if (newUriPhoto != null) {
-                                    myViewModel.uploadImage(newUriPhoto)
-                                }
-                            }
-                        } else {
-                            takePhoto(context, controller) { photo ->
-                                val newUriPhoto = myViewModel.bitmapToUri(context, photo)
-                                // TODO: MIRAR ESTO PARA LAS IMAGENES
-                                addPotoToMarker(myViewModel.currentMarker, photo.toString(), myViewModel)
-                                if (newUriPhoto != null) {
-                                    myViewModel.uploadImage(newUriPhoto)
-                                }
-                            }
+                                //myViewModel.showOverlay.value = false
+                            },
+                            modifier = Modifier.background(
+                                color = MaterialTheme.colorScheme.background,
+                                shape = CircleShape
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PhotoCamera,
+                                contentDescription = "Take photo"
+
+                            )
                         }
-                    }) {
-                        Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
                     }
+
                 }
             }
         }
@@ -172,11 +224,9 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
     }
 }
 
-
-
-
-private fun addPotoToMarker(marker: MarkerInfo, photo: String, myViewModel: ViewModel) {
-    myViewModel.addPhoto(photo, marker)
+suspend fun backToNormal(myViewModel: ViewModel) {
+    delay(1000)
+    myViewModel.showOverlay.value = false
 }
 
 private fun takePhoto(context: Context,
@@ -199,8 +249,6 @@ private fun takePhoto(context: Context,
     )
 }
 
-
-
 private fun rotateImageIfNeeded(bitmap: Bitmap, rotationDegrees: Int): Bitmap {
     return if (rotationDegrees != 0) {
         val matrix = Matrix().apply { postRotate(rotationDegrees.toFloat()) }
@@ -210,6 +258,9 @@ private fun rotateImageIfNeeded(bitmap: Bitmap, rotationDegrees: Int): Bitmap {
     }
 }
 
+private fun addPotoToMarker(marker: MarkerInfo, photo: String, myViewModel: ViewModel) {
+    myViewModel.addPhoto(photo, marker)
+}
 
 @Composable
 fun CameraPreview(
@@ -224,6 +275,3 @@ fun CameraPreview(
         }, modifier = modifier
     )
 }
-
-
-

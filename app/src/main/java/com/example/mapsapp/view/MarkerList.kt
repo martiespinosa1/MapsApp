@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,17 +40,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mapsapp.navigation.Routes
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 
-
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MarkerList(myViewModel: ViewModel, navController: NavController) {
     val markerState by myViewModel.markers.observeAsState()
-
     val context = LocalContext.current
     val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
     val shouldShowPermissionRationale by myViewModel.shouldShowPermissionRationale.observeAsState(false)
@@ -75,36 +70,9 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
             }
         }
     )
-    // camera permission
-//    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
-//    LaunchedEffect(Unit) {
-//        cameraPermissionState.launchPermissionRequest()
-//    }
-//    if(cameraPermissionState.status.isGranted) {
-//        TakePhoto(myViewModel, navController)
-//    } else {
-//        Text("Need permission")
-//    }
-
-//    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()
-//    ) {
-//        Button(onClick = {
-//            if (!isCameraPermissionGranted) {
-//                Log.i("Permission", "NOT GRANTED")
-//                launcher.launch(Manifest.permission.CAMERA)
-//            } else {
-//                Log.i("Permission", "GRANTED")
-//                navController.navigate(Routes.TakePhoto.route)
-//            }
-//        }) {
-//            Text(text = "Take photo")
-//        }
-//    }
     if (showPermissionDenied) {
         PermisionDeclinedScreen()
     }
-
-
 
     if (markerState == null || (markerState?.size ?: 0) == 0) {
         Column(
@@ -115,7 +83,7 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
             Text(text = "No markers yet")
         }
     } else {
-        LazyColumn() {
+        LazyColumn {
             items(myViewModel.markers.value?.size ?: 0) { index ->
                 val currentMarker = markerState?.getOrNull(index)
                 if (currentMarker != null) {
@@ -174,20 +142,16 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     if (marker.name != "") {
                         Text(
                             text = marker.name,
-                            //color = Color.LightGray,
                             fontSize = 23.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Monospace
+                            fontWeight = FontWeight.Bold
                         )
                     }
                     Spacer(modifier = Modifier.size(4.dp))
                     if (marker.type != "Type") {
                         Text(
                             text = marker.type,
-                            //color = Color.LightGray,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Monospace
+                            fontWeight = FontWeight.Bold
                         )
                     }
                     Spacer(modifier = Modifier.size(12.dp))
@@ -200,7 +164,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
 
                     Spacer(modifier = Modifier.size(12.dp))
                     Button(onClick = {
-                        // Eliminar el marcador
+                        // TODO: Eliminar el marcador del Firestore también
                         myViewModel.removeMarker(marker)
                     }) {
                         Text("Delete Marker")
@@ -227,22 +191,4 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
             }
         }
     }
-}
-
-
-
-
-
-@OptIn(ExperimentalGlideComposeApi::class)
-@Composable
-fun ImageItem(img: String) {
-    GlideImage(
-        model = img,
-        contentDescription = "Marker's Photo",
-        contentScale = ContentScale.Crop,
-        modifier = Modifier
-            .size(100.dp)
-            .padding(8.dp)
-            .clip(RoundedCornerShape(8.dp))
-    )
 }

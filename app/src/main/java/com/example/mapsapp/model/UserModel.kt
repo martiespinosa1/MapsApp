@@ -4,6 +4,4 @@ data class UserModel(
     var userId: String? = null,
     var email: String,
     var password: String
-) {
-    constructor() : this(null, "", "")
-}
+)

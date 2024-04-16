@@ -6,6 +6,10 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mapsapp.firebase.Repo
@@ -45,6 +49,8 @@ class ViewModel: ViewModel() {
     private var _isPopupVisible = MutableLiveData(false)
     var isPopupVisible = _isPopupVisible
 
+
+    var showOverlay = MutableLiveData(false)
 
 
     private val _cameraPermissionGrented = MutableLiveData(false)

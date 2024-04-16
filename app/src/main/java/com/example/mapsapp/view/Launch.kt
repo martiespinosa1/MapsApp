@@ -53,10 +53,8 @@ fun Launch(alphaAnim: Float) {
 
         Text(
             text = "Maps App",
-            color = Color.LightGray,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            fontFamily = FontFamily.Monospace,
             modifier = Modifier.padding(top = 30.dp).alpha(alphaAnim)
         )
     }
