@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,7 +33,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 fun Map(myViewModel: ViewModel, navController: NavController) {
     val myMarkers: List<MarkerInfo> by myViewModel.markers.observeAsState(emptyList())
     val isPopupVisible by myViewModel.isPopupVisible.observeAsState()
-    val (popupCoordinates, setPopupCoordinates) = remember { mutableStateOf(LatLng(0.0, 0.0)) }
+    val (popupCoordinates, setPopupCoordinates) = rememberSaveable { mutableStateOf(LatLng(0.0, 0.0)) }
 
     Box(
         modifier = Modifier
