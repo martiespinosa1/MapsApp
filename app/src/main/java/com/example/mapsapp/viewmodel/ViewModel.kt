@@ -168,16 +168,21 @@ class ViewModel: ViewModel() {
     private var _showCircularProgressBar: MutableLiveData<Boolean> = MutableLiveData(false)
 
     fun register(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _goToNext.value = true
-                } else {
-                    _goToNext.value = false
-                    Log.d("Error", "Error creating user: ${task.result}")
+        if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        _goToNext.value = true
+                    } else {
+                        _goToNext.value = false
+                        Log.d("Error", "Error creating user: ${task.result}")
+                    }
+                    modifyProcessing()
                 }
-                modifyProcessing()
-            }
+        } else {
+            // Handle invalid email format
+            Log.d("Error", "Invalid email format")
+        }
     }
 
     fun login(email: String?, password: String?) {

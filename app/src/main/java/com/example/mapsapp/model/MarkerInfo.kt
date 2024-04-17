@@ -1,6 +1,5 @@
 package com.example.mapsapp.model
 
-import android.graphics.Bitmap
 import com.google.android.gms.maps.model.LatLng
 import java.util.UUID
 

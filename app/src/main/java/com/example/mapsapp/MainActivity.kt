@@ -47,6 +47,7 @@ import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.ui.theme.MapsAppTheme
 import com.example.mapsapp.view.AddMarker
 import com.example.mapsapp.view.LaunchAnimation
+import com.example.mapsapp.view.LogIn
 import com.example.mapsapp.view.Map
 import com.example.mapsapp.view.MarkerList
 import com.example.mapsapp.view.TakePhoto
@@ -214,6 +215,7 @@ fun MyScaffold(myViewModel: ViewModel, state: DrawerState, navController: NavCon
                     startDestination = Routes.Launch.route
                 ) {
                     composable(Routes.Launch.route) { LaunchAnimation(navController) }
+                    composable(Routes.Login.route) { LogIn(myViewModel, navController) }
                     composable(Routes.Map.route) { Map(myViewModel, navController) }
                     composable(Routes.MarkerList.route) { MarkerList(myViewModel, navController) }
                     composable(Routes.TakePhoto.route) { TakePhoto(myViewModel, navController) }

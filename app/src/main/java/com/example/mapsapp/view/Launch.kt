@@ -72,7 +72,7 @@ fun LaunchAnimation(navController: NavController) {
         startAnimation = true
         delay(2000)
         navController.popBackStack()
-        navController.navigate(Routes.Map.route)
+        navController.navigate(Routes.Login.route)
     }
     Launch(alphaAnim.value)
 }
