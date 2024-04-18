@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.mapsapp.R
 import com.example.mapsapp.navigation.Routes
+import com.example.mapsapp.viewmodel.ViewModel
 import kotlinx.coroutines.delay
 
 
@@ -62,7 +63,7 @@ fun Launch(alphaAnim: Float) {
 
 
 @Composable
-fun LaunchAnimation(navController: NavController) {
+fun LaunchAnimation(myViewModel: ViewModel, navController: NavController) {
     var startAnimation by remember { mutableStateOf(false) }
     val alphaAnim = animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
@@ -72,7 +73,9 @@ fun LaunchAnimation(navController: NavController) {
         startAnimation = true
         delay(2000)
         navController.popBackStack()
-        navController.navigate(Routes.Login.route)
+        navController.navigate(if (myViewModel.getAuth().currentUser == null) {
+            Routes.Login.route
+        } else Routes.Map.route)
     }
     Launch(alphaAnim.value)
 }

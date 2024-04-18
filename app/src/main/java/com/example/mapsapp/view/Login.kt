@@ -78,7 +78,8 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                 )
 
                 Button(onClick = {
-                    navController.navigate(Routes.Map.route)
+                    myViewModel.login(textUserEmail.value.text, textUserPassword.value.text)
+                    if (myViewModel.goToNext.value == true) { navController.navigate(Routes.Map.route) }
                 },
                     Modifier.width(300.dp)) {
                     Text(
@@ -91,7 +92,7 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
 
         Button(onClick = {
             myViewModel.register(textUserEmail.value.text, textUserPassword.value.text)
-            navController.navigate(Routes.Map.route)
+            if (myViewModel.goToNext.value == true) { navController.navigate(Routes.Map.route) }
         },
             Modifier.width(300.dp)) {
             Text(

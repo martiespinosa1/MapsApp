@@ -29,6 +29,7 @@ class ViewModel: ViewModel() {
     // AQUI SE TIENEN QUE PONER COSAS QUE ESTAN EN OTRAS SCREENS
 
     var deviceLatLng: MutableLiveData<LatLng> = MutableLiveData(LatLng(0.0, 0.0))
+    var lastKnownLocation: MutableLiveData<LatLng>? = null
 
 
     private var _marker = MutableLiveData(MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null, ""))
@@ -161,15 +162,22 @@ class ViewModel: ViewModel() {
 
     // Firebase Authentication
     private var auth = FirebaseAuth.getInstance()
+    fun getAuth(): FirebaseAuth {
+        return auth
+    }
 
     private var _userId: MutableLiveData<String> = MutableLiveData("")
+    var userId = _userId
     private var _loggedUser: MutableLiveData<String> = MutableLiveData("")
+    var loggedUser = _loggedUser
     private var _goToNext: MutableLiveData<Boolean> = MutableLiveData(false)
+    var goToNext = _goToNext
     private var _showCircularProgressBar: MutableLiveData<Boolean> = MutableLiveData(false)
+    var showCircularProgressBar = _showCircularProgressBar
 
-    fun register(email: String, password: String) {
+    fun register(email: String?, password: String?) {
         if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            auth.createUserWithEmailAndPassword(email, password)
+            auth.createUserWithEmailAndPassword(email ?: "", password ?: "")
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         _goToNext.value = true
@@ -186,7 +194,7 @@ class ViewModel: ViewModel() {
     }
 
     fun login(email: String?, password: String?) {
-        auth.signInWithEmailAndPassword(email!!, password!!)
+        auth.signInWithEmailAndPassword(email ?: "", password ?: "")
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _userId.value = task.result.user?.uid

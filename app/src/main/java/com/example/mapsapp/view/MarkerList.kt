@@ -106,6 +106,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
         onClick = {
             navController.navigate(Routes.Map.route) {
                 myViewModel.deviceLatLng.value = marker.coordinates // TODO: No va
+                myViewModel.lastKnownLocation?.value = marker.coordinates
                 launchSingleTop = true
                 popUpTo(Routes.Map.route) {
                     saveState = true

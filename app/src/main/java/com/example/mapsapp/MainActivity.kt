@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -32,11 +35,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -113,7 +118,22 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                     )
                 }
             }
-            Text("User name", modifier = Modifier.padding(16.dp), fontWeight = FontWeight.Bold)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PersonOutline,
+                    contentDescription = "Icono de usuario",
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    "${myViewModel.loggedUser.value}",
+                    modifier = Modifier.padding(start = 8.dp),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp
+                )
+            }
             Divider()
             NavigationDrawerItem(
                 label = { Text(text = "View marker list") },
@@ -140,23 +160,16 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                 }
             )
             NavigationDrawerItem(
-                label = { Text(text = "Add marker in current location") },
+                label = {
+                    Text(text = "Log out", fontWeight = FontWeight.Bold)
+                },
                 selected = false,
                 onClick = {
+                    myViewModel.logout()
                     scope.launch {
                         state.close()
                     }
-                    //navigation
-                }
-            )
-            NavigationDrawerItem(
-                label = { Text(text = "Log out") },
-                selected = false,
-                onClick = {
-                    scope.launch {
-                        state.close()
-                    }
-                    //navigation
+                    navController.navigate(Routes.Login.route)
                 }
             )
         }
@@ -214,7 +227,7 @@ fun MyScaffold(myViewModel: ViewModel, state: DrawerState, navController: NavCon
                     navController = navController as NavHostController,
                     startDestination = Routes.Launch.route
                 ) {
-                    composable(Routes.Launch.route) { LaunchAnimation(navController) }
+                    composable(Routes.Launch.route) { LaunchAnimation(myViewModel, navController) }
                     composable(Routes.Login.route) { LogIn(myViewModel, navController) }
                     composable(Routes.Map.route) { Map(myViewModel, navController) }
                     composable(Routes.MarkerList.route) { MarkerList(myViewModel, navController) }
