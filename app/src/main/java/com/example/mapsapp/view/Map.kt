@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -88,7 +87,6 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             }
         }
 
-        // TODO: REVISAR ESTO (al poner imagenes en la creacion del marker, lo crea en la posicion 0,0)
         if (isPopupVisible == true) {
             AddMarker(myViewModel, navController,
                 onDismiss = { myViewModel.changePopUpVisibility(false) },
