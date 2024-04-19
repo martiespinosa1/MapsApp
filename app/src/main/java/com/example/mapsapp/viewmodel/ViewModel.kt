@@ -26,8 +26,6 @@ import java.util.Locale
 
 class ViewModel: ViewModel() {
 
-    // AQUI SE TIENEN QUE PONER COSAS QUE ESTAN EN OTRAS SCREENS
-
     var deviceLatLng: MutableLiveData<LatLng> = MutableLiveData(LatLng(0.0, 0.0))
     var lastKnownLocation: MutableLiveData<LatLng>? = null
 
@@ -187,7 +185,7 @@ class ViewModel: ViewModel() {
                     if (task.isSuccessful) {
                         _goToNext.value = true
                     } else {
-                        Log.d("Error", "Error creating user: ${task.result}")
+                        Log.d("Error", "Error creating user: ${task.exception?.message}")
                         _goToNext.value = false
                         _registerFail.value = true
                     }
@@ -197,6 +195,7 @@ class ViewModel: ViewModel() {
                     Log.e("Error", "Authentication failed", exception)
                     _goToNext.value = false
                     _registerFail.value = true
+                    modifyProcessing()
                 }
         } else {
             // Handle invalid email format
@@ -208,12 +207,12 @@ class ViewModel: ViewModel() {
         auth.signInWithEmailAndPassword(email ?: "", password ?: "")
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    _userId.value = task.result.user?.uid
-                    _loggedUser.value = task.result.user?.email?.split("@")?.get(0)
+                    _userId.value = task.result?.user?.uid
+                    _loggedUser.value = task.result?.user?.email?.split("@")?.get(0)
                     _goToNext.value = true
                     getMarkers()
                 } else {
-                    Log.d("Error", "Error login in: ${task.result}")
+                    Log.d("Error", "Error login in: ${task.exception?.message}")
                     _goToNext.value = false
                     _loginFail.value = true
                 }
@@ -223,8 +222,10 @@ class ViewModel: ViewModel() {
                 Log.e("Error", "Authentication failed", exception)
                 _goToNext.value = false
                 _loginFail.value = true
+                modifyProcessing()
             }
     }
+
 
     fun logout() {
         auth.signOut()

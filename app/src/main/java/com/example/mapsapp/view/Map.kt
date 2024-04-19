@@ -74,8 +74,13 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                 isBuildingEnabled = true
             ),
             onMapLongClick = { coordinates ->
+                //etPopupCoordinates(coordinates)
+                //myViewModel.deviceLatLng.value = popupCoordinates
+                //myViewModel.changePopUpVisibility(true)
+
                 setPopupCoordinates(coordinates)
-                myViewModel.deviceLatLng.value = popupCoordinates
+                cameraPositionState.position = CameraPosition.Builder().target(coordinates).zoom(18f).build()
+                myViewModel.deviceLatLng.value = coordinates
                 myViewModel.changePopUpVisibility(true)
             }
         ) {
@@ -102,8 +107,8 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             )
         }
 
-        if (myMarkers.isEmpty()) {
-            Toast.makeText(context, "TESTTESTTEST", Toast.LENGTH_LONG).show()
-        }
+//        if (myMarkers.isEmpty()) {
+//            Toast.makeText(context, "TESTTESTTEST", Toast.LENGTH_LONG).show()
+//        }
     }
 }

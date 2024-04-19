@@ -13,8 +13,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.FormatListNumbered
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Output
 import androidx.compose.material.icons.filled.PersonOutline
+import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -136,10 +141,16 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
             }
             Divider()
             NavigationDrawerItem(
-                label = { Text(
-                    text = "View marker list",
-                    fontSize = 18.sp
-                ) },
+                label = {
+                    Row {
+                        Icon(Icons.Filled.FormatListNumbered, contentDescription = "list icon")
+                        Text(
+                            text = "Marker list",
+                            modifier = Modifier.padding(start = 8.dp),
+                            fontSize = 18.sp
+                        )
+                    }
+                },
                 selected = false,
                 onClick = {
                     scope.launch {
@@ -151,10 +162,16 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                 }
             )
             NavigationDrawerItem(
-                label = { Text(
-                    text = "View map",
-                    fontSize = 18.sp
-                ) },
+                label = {
+                    Row {
+                        Icon(Icons.Filled.Map, contentDescription = "map icon")
+                        Text(
+                            text = "Map",
+                            modifier = Modifier.padding(start = 8.dp),
+                            fontSize = 18.sp
+                        )
+                    }
+                },
                 selected = false,
                 onClick = {
                     scope.launch {
@@ -167,11 +184,15 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
             )
             NavigationDrawerItem(
                 label = {
-                    Text(
-                        text = "Log out",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
+                    Row {
+                        Icon(Icons.Filled.Output, contentDescription = "log-out icon")
+                        Text(
+                            text = "Log out",
+                            modifier = Modifier.padding(start = 8.dp),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
                 },
                 selected = false,
                 onClick = {
