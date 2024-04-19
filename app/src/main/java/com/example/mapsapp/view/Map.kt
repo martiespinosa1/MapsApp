@@ -3,6 +3,7 @@ package com.example.mapsapp.view
 import android.annotation.SuppressLint
 import android.location.Location
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -99,6 +100,10 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                     saveMarkerToFirebase(newMarker)
                 }
             )
+        }
+
+        if (myMarkers.isEmpty()) {
+            Toast.makeText(context, "TESTTESTTEST", Toast.LENGTH_LONG).show()
         }
     }
 }

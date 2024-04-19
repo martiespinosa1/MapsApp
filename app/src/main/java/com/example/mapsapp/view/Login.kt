@@ -99,6 +99,13 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                         fontSize = 18.sp
                     )
                 }
+
+                if (myViewModel.registerFail.value == true) {
+                    Text(text = "Fallo de registro")
+                }
+                if (myViewModel.loginFail.value == true) {
+                    Text(text = "Fallo de login")
+                }
             }
         }
 

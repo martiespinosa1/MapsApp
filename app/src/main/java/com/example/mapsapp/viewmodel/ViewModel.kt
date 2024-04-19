@@ -175,6 +175,11 @@ class ViewModel: ViewModel() {
     private var _showCircularProgressBar: MutableLiveData<Boolean> = MutableLiveData(false)
     var showCircularProgressBar = _showCircularProgressBar
 
+    private var _registerFail: MutableLiveData<Boolean> = MutableLiveData(false)
+    var registerFail = _registerFail
+    private var _loginFail: MutableLiveData<Boolean> = MutableLiveData(false)
+    var loginFail = _loginFail
+
     fun register(email: String?, password: String?) {
         if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             auth.createUserWithEmailAndPassword(email ?: "", password ?: "")
@@ -182,10 +187,16 @@ class ViewModel: ViewModel() {
                     if (task.isSuccessful) {
                         _goToNext.value = true
                     } else {
-                        _goToNext.value = false
                         Log.d("Error", "Error creating user: ${task.result}")
+                        _goToNext.value = false
+                        _registerFail.value = true
                     }
                     modifyProcessing()
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("Error", "Authentication failed", exception)
+                    _goToNext.value = false
+                    _registerFail.value = true
                 }
         } else {
             // Handle invalid email format
@@ -202,10 +213,16 @@ class ViewModel: ViewModel() {
                     _goToNext.value = true
                     getMarkers()
                 } else {
+                    Log.d("Error", "Error login in: ${task.result}")
                     _goToNext.value = false
-                    Log.d("Error", "Error signing in: ${task.result}")
+                    _loginFail.value = true
                 }
                 modifyProcessing()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Error", "Authentication failed", exception)
+                _goToNext.value = false
+                _loginFail.value = true
             }
     }
 
