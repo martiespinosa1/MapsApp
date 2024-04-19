@@ -64,7 +64,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
-    val myMarkers: List<MarkerInfo> by myViewModel.markers.observeAsState(emptyList())
+    val myMarkers: List<MarkerInfo> by myViewModel.markerList.observeAsState(emptyList())
 
 
     val context = LocalContext.current
@@ -178,7 +178,7 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                                 if (myViewModel.takePhotoFromCreateMarker.value == true) {
                                     takePhoto(context, controller) { photo ->
                                         // TODO: MIRAR ESTO PARA LAS IMAGENES
-                                        myViewModel.photosInTransit.add(photo.toString())
+                                        myViewModel.photosInTransit.add(myViewModel.bitmapToUri(context, photo).toString())
                                         val newUriPhoto = myViewModel.bitmapToUri(context, photo)
                                         if (newUriPhoto != null) {
                                             myViewModel.uploadImage(newUriPhoto)
@@ -186,16 +186,17 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                                     }
                                 } else {
                                     takePhoto(context, controller) { photo ->
-                                        val newUriPhoto = myViewModel.bitmapToUri(context, photo)
                                         // TODO: MIRAR ESTO PARA LAS IMAGENES
                                         addPotoToMarker(
                                             myViewModel.currentMarker,
-                                            photo.toString(),
+                                            myViewModel.bitmapToUri(context, photo).toString(),
                                             myViewModel
                                         )
+                                        val newUriPhoto = myViewModel.bitmapToUri(context, photo)
                                         if (newUriPhoto != null) {
                                             myViewModel.uploadImage(newUriPhoto)
                                         }
+
                                     }
                                 }
                                 //myViewModel.showOverlay.value = false

@@ -46,7 +46,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 
 @Composable
 fun MarkerList(myViewModel: ViewModel, navController: NavController) {
-    val markerState by myViewModel.markers.observeAsState()
+    val markerState by myViewModel.markerList.observeAsState()
     val context = LocalContext.current
     val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
     val shouldShowPermissionRationale by myViewModel.shouldShowPermissionRationale.observeAsState(false)
@@ -84,7 +84,7 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
         }
     } else {
         LazyColumn {
-            items(myViewModel.markers.value?.size ?: 0) { index ->
+            items(myViewModel.markerList.value?.size ?: 0) { index ->
                 val currentMarker = markerState?.getOrNull(index)
                 if (currentMarker != null) {
                     MarkerItem(
@@ -174,7 +174,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     marker.photos?.let {
                         items(it.size) { index ->
                             GlideImage(
-                                model = myViewModel.actualMarker.value?.photos?.get(index),
+                                model = it[index],
                                 contentDescription = "Marker's Photo",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier

@@ -35,8 +35,8 @@ class ViewModel: ViewModel() {
     private var _marker = MutableLiveData(MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null, ""))
     var marker = _marker
 
-    private var _markers = MutableLiveData<MutableList<MarkerInfo>>()
-    val markers = _markers
+//    private var _markers = MutableLiveData<MutableList<MarkerInfo>>()
+//    val markers = _markers
 
     private var _currentMarker: MarkerInfo = MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null, "")
     var currentMarker = _currentMarker
@@ -84,9 +84,9 @@ class ViewModel: ViewModel() {
     }
 
     fun removeMarker(markerInfo: MarkerInfo) {
-        val currentList = _markers.value?.toMutableList()
+        val currentList = _markerList.value?.toMutableList()
         currentList?.remove(markerInfo)
-        _markers.value = currentList
+        _markerList.value = currentList
     }
 
     fun changePopUpVisibility(value: Boolean) {
@@ -116,23 +116,23 @@ class ViewModel: ViewModel() {
 //
 //    private var _password: MutableLiveData<String> = MutableLiveData("")
 //
-//    fun getUsers() {
-//        repository.getUsers().addSnapshotListener { value, error ->
-//            if (error != null) {
-//                Log.e("Firebase error", error.message.toString())
-//                return@addSnapshotListener
-//            }
-//            val tempList = mutableListOf<UserModel>()
-//            for (dc: DocumentChange in value?.documentChanges!!) {
-//                if (dc.type == DocumentChange.Type.ADDED) {
-//                    val newUser = dc.document.toObject(UserModel::class.java)
-//                    newUser.userId = dc.document.id
-//                    tempList.add(newUser)
-//                }
-//            }
-//            _userList.value = tempList
-//        }
-//    }
+    fun getMarkers() {
+        repository.getUsers().addSnapshotListener { value, error ->
+            if (error != null) {
+                Log.e("Firebase error", error.message.toString())
+                return@addSnapshotListener
+            }
+            val tempList = mutableListOf<MarkerInfo>()
+            for (dc: DocumentChange in value?.documentChanges!!) {
+                if (dc.type == DocumentChange.Type.ADDED) {
+                    val newMarker = dc.document.toObject(MarkerInfo::class.java)
+                    newMarker.userId = dc.document.id
+                    tempList.add(newMarker)
+                }
+            }
+            _markerList.value = tempList
+        }
+    }
 
     fun getMarker(markerId: String) {
         repository.getMarker(markerId).addSnapshotListener { value, error ->
@@ -200,6 +200,7 @@ class ViewModel: ViewModel() {
                     _userId.value = task.result.user?.uid
                     _loggedUser.value = task.result.user?.email?.split("@")?.get(0)
                     _goToNext.value = true
+                    getMarkers()
                 } else {
                     _goToNext.value = false
                     Log.d("Error", "Error signing in: ${task.result}")

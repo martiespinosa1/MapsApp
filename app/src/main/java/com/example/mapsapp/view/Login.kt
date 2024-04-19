@@ -13,13 +13,18 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +44,7 @@ import com.example.mapsapp.viewmodel.ViewModel
 fun LogIn(myViewModel: ViewModel, navController: NavController) {
     var textUserEmail = remember { mutableStateOf(TextFieldValue("")) }
     var textUserPassword = remember { mutableStateOf(TextFieldValue("")) }
+    var passwordVisible = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -73,7 +80,12 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                     label = { Text("Password") },
                     leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Icono de contraseña") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                            Icon(imageVector = if (passwordVisible.value) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, contentDescription = if (passwordVisible.value) "Hide password" else "Show password")
+                        }
+                    },
                     modifier = Modifier.padding(vertical = 10.dp)
                 )
 

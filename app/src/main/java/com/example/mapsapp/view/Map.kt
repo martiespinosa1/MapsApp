@@ -31,7 +31,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @SuppressLint("MissingPermission")
 @Composable
 fun Map(myViewModel: ViewModel, navController: NavController) {
-    val myMarkers: List<MarkerInfo> by myViewModel.markers.observeAsState(emptyList())
+    val myMarkers: List<MarkerInfo> by myViewModel.markerList.observeAsState(emptyList())
     val isPopupVisible by myViewModel.isPopupVisible.observeAsState()
     val (popupCoordinates, setPopupCoordinates) = rememberSaveable { mutableStateOf(LatLng(0.0, 0.0)) }
 
@@ -91,10 +91,10 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             AddMarker(myViewModel, navController,
                 onDismiss = { myViewModel.changePopUpVisibility(false) },
                 onTextFieldSubmitted = { name, type, photos ->
-                    val currentMarkers = myViewModel.markers.value ?: mutableListOf()
+                    val currentMarkers = myViewModel.markerList.value ?: mutableListOf()
                     val newMarker = MarkerInfo(name = name, coordinates = popupCoordinates, type = type, photos = photos, userId = null)
                     currentMarkers.add(newMarker)
-                    myViewModel.markers.value = currentMarkers
+                    myViewModel.markerList.value = currentMarkers
                     myViewModel.changePopUpVisibility(false)
                     saveMarkerToFirebase(newMarker)
                 }

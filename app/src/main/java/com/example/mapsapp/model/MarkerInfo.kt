@@ -8,6 +8,6 @@ data class MarkerInfo(
     val coordinates: LatLng,
     val type: String,
     val photos: MutableList<String>?,
-    val userId: String?,
+    var userId: String?,
     var markerId: String = UUID.randomUUID().toString()
 )

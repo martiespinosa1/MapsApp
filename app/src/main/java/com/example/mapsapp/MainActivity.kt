@@ -125,18 +125,21 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                 Icon(
                     imageVector = Icons.Default.PersonOutline,
                     contentDescription = "Icono de usuario",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
                 Text(
                     "${myViewModel.loggedUser.value}",
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp
+                    fontSize = 28.sp
                 )
             }
             Divider()
             NavigationDrawerItem(
-                label = { Text(text = "View marker list") },
+                label = { Text(
+                    text = "View marker list",
+                    fontSize = 18.sp
+                ) },
                 selected = false,
                 onClick = {
                     scope.launch {
@@ -148,7 +151,10 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                 }
             )
             NavigationDrawerItem(
-                label = { Text(text = "View map") },
+                label = { Text(
+                    text = "View map",
+                    fontSize = 18.sp
+                ) },
                 selected = false,
                 onClick = {
                     scope.launch {
@@ -161,7 +167,11 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
             )
             NavigationDrawerItem(
                 label = {
-                    Text(text = "Log out", fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Log out",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
                 },
                 selected = false,
                 onClick = {
@@ -187,7 +197,7 @@ fun MyTopAppBar(myViewModel: ViewModel, state: DrawerState) {
     TopAppBar(
         title = { Text(text = "Maps App") },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color.DarkGray,
+            containerColor = MaterialTheme.colorScheme.secondary,
             titleContentColor = Color.White,
             navigationIconContentColor = Color.White,
             actionIconContentColor = Color.White

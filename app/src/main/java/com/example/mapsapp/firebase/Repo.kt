@@ -32,8 +32,9 @@ class Repo {
     fun deleteMarker(userId: String) {
     }
 
-//    fun getMarkers(): CollectionReference {
-//    }
+    fun getMarkers(): CollectionReference {
+        return database.collection("markers")
+    }
 
     fun getMarker(markerId: String): DocumentReference {
         return database.collection("markers").document(markerId)
