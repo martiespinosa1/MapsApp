@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -82,14 +84,18 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
 
     if (markerState == null || (markerState?.size ?: 0) == 0) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().background(myViewModel.myColor2),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "No markers yet")
         }
     } else {
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(myViewModel.myColor2)
+        ) {
             items(myViewModel.markerList.value?.size ?: 0) { index ->
                 val currentMarker = markerState?.getOrNull(index)
                 if (currentMarker != null) {
@@ -111,9 +117,6 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
     Card(
         onClick = {
             navController.navigate(Routes.Map.route) {
-                //myViewModel.deviceLatLng.value = LatLng(marker.latitude, marker.longitude) // TODO: No va
-                //myViewModel.lastKnownLocation?.value = LatLng(marker.latitude, marker.longitude)
-                //myViewModel.actualMarker.value = marker
                 myViewModel.currentMarker = marker
                 myViewModel.comingFromList.value = true
                 launchSingleTop = true
@@ -122,7 +125,8 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                 }
             }
         },
-        border = BorderStroke(3.dp, Color.LightGray),
+        colors = CardDefaults.cardColors(containerColor = myViewModel.myColor1),
+        border = BorderStroke(3.dp, Color.White),
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier.padding(8.dp)
     ) {
@@ -133,7 +137,9 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column {
-                    Image(painter = painterResource(id = R.drawable.marker_icon), contentDescription = "marker icon", modifier = Modifier.size(100.dp).padding(start = 16.dp))
+                    Image(painter = painterResource(id = R.drawable.marker_icon), contentDescription = "marker icon", modifier = Modifier
+                        .size(100.dp)
+                        .padding(start = 16.dp))
                 }
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -156,23 +162,41 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                         )
                     }
                     Spacer(modifier = Modifier.size(12.dp))
-                    Button(onClick = {
-                        myViewModel.actualMarker.value = marker
-                        navController.navigate(Routes.TakePhoto.route)
-                    },
-                        colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
-                    ) {
-                        Text("Take photo", fontFamily = myViewModel.myFontFamily,)
+                    Row {
+                        Button(
+                            onClick = {
+                                myViewModel.actualMarker.value = marker
+                                navController.navigate(Routes.TakePhoto.route)
+                            },
+                            colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
+                        ) {
+                            Text("Camera", fontFamily = myViewModel.myFontFamily)
+                        }
+                        Button(
+                            onClick = { },
+                            colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
+                        ) {
+                            Text("Gallery", fontFamily = myViewModel.myFontFamily)
+                        }
                     }
 
                     Spacer(modifier = Modifier.size(12.dp))
-                    Button(onClick = {
-                        // TODO: Eliminar el marcador del Firestore también
-                        myViewModel.removeMarker(marker)
-                    },
-                        colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
-                    ) {
-                        Text("Delete Marker", fontFamily = myViewModel.myFontFamily,)
+                    Row {
+                        Button(
+                            onClick = { },
+                            colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
+                        ) {
+                            Text("Edit", fontFamily = myViewModel.myFontFamily)
+                        }
+                        Button(
+                            onClick = {
+                                // TODO: Eliminar el marcador del Firestore también
+                                myViewModel.removeMarker(marker)
+                            },
+                            colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
+                        ) {
+                            Text("Delete", fontFamily = myViewModel.myFontFamily)
+                        }
                     }
                 }
             }

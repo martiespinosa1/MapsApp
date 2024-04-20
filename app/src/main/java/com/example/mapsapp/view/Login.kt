@@ -62,7 +62,9 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
     val registering by myViewModel.registering.observeAsState()
 
     Column(
-        modifier = Modifier.fillMaxSize().background(myViewModel.myColor2),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(myViewModel.myColor2),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -135,10 +137,6 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                     )
                 }
 
-                if (myViewModel.showCircularProgressBar.value == true) {
-                    CircularProgressIndicator(modifier = Modifier.align(CenterHorizontally))
-                }
-
                 if (myViewModel.registerFail.value == true) {
                     Text(text = "Fallo de registro", color = Color.Red.copy(alpha = 0.6f))
                 }
@@ -159,11 +157,15 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                     modifier = Modifier.width(300.dp),
                     colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
                 ) {
-                    Text(
-                        text = if (registering == true) "Register" else "Log In",
-                        fontFamily = myViewModel.myFontFamily,
-                        fontSize = 18.sp
-                    )
+                    if (myViewModel.showCircularProgressBar.value == true) {
+                        CircularProgressIndicator()
+                    } else {
+                        Text(
+                            text = if (registering == true) "Register" else "Log In",
+                            fontFamily = myViewModel.myFontFamily,
+                            fontSize = 18.sp
+                        )
+                    }
                 }
             }
         }

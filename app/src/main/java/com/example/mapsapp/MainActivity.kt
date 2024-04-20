@@ -141,7 +141,7 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                     "${myViewModel.loggedUser.value}",
                     modifier = Modifier.padding(start = 16.dp),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 28.sp
+                    fontSize = 23.sp
                 )
             }
             Divider()
@@ -199,7 +199,6 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                         Text(
                             text = "Log out",
                             modifier = Modifier.padding(start = 16.dp),
-                            fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
                     }

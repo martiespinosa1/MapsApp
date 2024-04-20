@@ -188,7 +188,7 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                                     takePhoto(context, controller) { photo ->
                                         // TODO: MIRAR ESTO PARA LAS IMAGENES
                                         addPotoToMarker(
-                                            myViewModel.currentMarker,
+                                            myViewModel.actualMarker.value ?: myViewModel.currentMarker,
                                             myViewModel.bitmapToUri(context, photo).toString(),
                                             myViewModel
                                         )
