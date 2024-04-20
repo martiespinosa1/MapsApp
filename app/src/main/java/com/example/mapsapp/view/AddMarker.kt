@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -224,14 +225,22 @@ fun AddMarker(
 
                 Button(
                     onClick = {
-                        onTextFieldSubmitted(textFieldValue, type.value, myViewModel.photosInTransit)
+                        // Sube todas las fotos en photosInTransit al Storage
+                        myViewModel.photosInTransit.forEach { photoUriString ->
+                            val photoUri = Uri.parse(photoUriString)
+                            myViewModel.uploadImage(photoUri)
+                        }
+                        // Limpia la lista de fotos en tránsito después de subirlas
                         myViewModel.photosInTransit = mutableListOf()
+                        // Continúa con la lógica de guardar el marcador
+                        onTextFieldSubmitted(textFieldValue, type.value, myViewModel.photosInTransit)
                         onDismiss()
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Save")
                 }
+
             }
             if (showPermissionDenied) {
                 PermisionDeclinedScreen()

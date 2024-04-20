@@ -6,15 +6,10 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mapsapp.firebase.Repo
 import com.example.mapsapp.model.MarkerInfo
-import com.example.mapsapp.model.UserModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
@@ -28,6 +23,7 @@ class ViewModel: ViewModel() {
 
     var deviceLatLng: MutableLiveData<LatLng> = MutableLiveData(LatLng(0.0, 0.0))
     var lastKnownLocation: MutableLiveData<LatLng>? = null
+    var comingFromList: MutableLiveData<Boolean> = MutableLiveData(false)
 
     private var _currentMarker: MarkerInfo = MarkerInfo("ITB", latitude = 41.4534265, longitude = 2.1837151, "itb", null, "")
     var currentMarker = _currentMarker
@@ -148,6 +144,10 @@ class ViewModel: ViewModel() {
                 Log.d("UserRepository", "Current dat: null")
             }
         }
+    }
+
+    fun deleteMarker(markerId: String) {
+        repository.deleteMarker(markerId)
     }
 
 

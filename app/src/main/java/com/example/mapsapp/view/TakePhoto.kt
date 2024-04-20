@@ -227,8 +227,11 @@ suspend fun backToNormal(myViewModel: ViewModel) {
     myViewModel.showOverlay.value = false
 }
 
-private fun takePhoto(context: Context,
-    controller: LifecycleCameraController, onPhotoTaken: (Bitmap) -> Unit) {
+private fun takePhoto(
+    context: Context,
+    controller: LifecycleCameraController,
+    onPhotoTaken: (Bitmap) -> Unit
+) {
     controller.takePicture(
         ContextCompat.getMainExecutor(context),
         object : ImageCapture.OnImageCapturedCallback() {

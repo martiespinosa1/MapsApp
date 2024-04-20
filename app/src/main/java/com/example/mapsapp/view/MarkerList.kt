@@ -48,6 +48,7 @@ import com.google.android.gms.maps.model.LatLng
 @Composable
 fun MarkerList(myViewModel: ViewModel, navController: NavController) {
     val markerState by myViewModel.markerList.observeAsState()
+    if (markerState?.size == 0) myViewModel.lastKnownLocation = null
     val context = LocalContext.current
     val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
     val shouldShowPermissionRationale by myViewModel.shouldShowPermissionRationale.observeAsState(false)
@@ -106,8 +107,11 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
     Card(
         onClick = {
             navController.navigate(Routes.Map.route) {
-                myViewModel.deviceLatLng.value = LatLng(marker.latitude, marker.longitude) // TODO: No va
-                myViewModel.lastKnownLocation?.value = LatLng(marker.latitude, marker.longitude)
+                //myViewModel.deviceLatLng.value = LatLng(marker.latitude, marker.longitude) // TODO: No va
+                //myViewModel.lastKnownLocation?.value = LatLng(marker.latitude, marker.longitude)
+                //myViewModel.actualMarker.value = marker
+                myViewModel.currentMarker = marker
+                myViewModel.comingFromList.value = true
                 launchSingleTop = true
                 popUpTo(Routes.Map.route) {
                     saveState = true
@@ -172,7 +176,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
             if (!marker.photos.isNullOrEmpty()) {
                 myViewModel.getMarker(marker.markerId)
                 LazyRow {
-                    marker.photos?.let {
+                    marker.photos.let {
                         items(it.size) { index ->
                             GlideImage(
                                 model = it[index],

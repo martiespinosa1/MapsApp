@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -184,6 +185,7 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                     }
                 }
             )
+            Spacer(modifier = Modifier.weight(1f))
             NavigationDrawerItem(
                 label = {
                     Row {

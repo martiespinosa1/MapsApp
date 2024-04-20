@@ -45,7 +45,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
         var lastKnownLocation by remember { mutableStateOf<Location?>(null) }
         //var deviceLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
         val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(myViewModel.deviceLatLng.value!!, 18f) }
-        val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
+        //val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
         // Obtener la ubicación actual solo si lastKnownLocation es null
         if (lastKnownLocation == null) {
             val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
@@ -58,6 +58,9 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                     Log.e("Error", "Exception: %s", task.exception)
                 }
             }
+        }
+        if (myViewModel.comingFromList.value == true) {
+            cameraPositionState.position = CameraPosition.Builder().target(LatLng(myViewModel.currentMarker.latitude, myViewModel.currentMarker.longitude)).zoom(18f).build()
         }
 
 
@@ -74,13 +77,8 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                 isBuildingEnabled = true
             ),
             onMapLongClick = { coordinates ->
-                //etPopupCoordinates(coordinates)
-                //myViewModel.deviceLatLng.value = popupCoordinates
-                //myViewModel.changePopUpVisibility(true)
-
                 setPopupCoordinates(coordinates)
-                cameraPositionState.position = CameraPosition.Builder().target(coordinates).zoom(18f).build()
-                myViewModel.deviceLatLng.value = coordinates
+                //myViewModel.deviceLatLng.value = coordinates
                 myViewModel.changePopUpVisibility(true)
             }
         ) {
