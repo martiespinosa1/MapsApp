@@ -42,7 +42,7 @@ fun Launch(alphaAnim: Float) {
     ) {
 
         Image(
-            painter = painterResource(id = R.drawable.map_logo),
+            painter = painterResource(id = R.drawable.app_logo),
             contentDescription = "logo",
             alpha = alphaAnim,
             modifier = Modifier
@@ -54,7 +54,7 @@ fun Launch(alphaAnim: Float) {
 
         Text(
             text = "Maps App",
-            fontSize = 28.sp,
+            fontSize = 36.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 30.dp).alpha(alphaAnim)
         )

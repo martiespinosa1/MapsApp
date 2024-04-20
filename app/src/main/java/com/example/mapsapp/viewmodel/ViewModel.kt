@@ -6,8 +6,12 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.mapsapp.R
 import com.example.mapsapp.firebase.Repo
 import com.example.mapsapp.model.MarkerInfo
 import com.google.android.gms.maps.model.LatLng
@@ -20,6 +24,9 @@ import java.util.Date
 import java.util.Locale
 
 class ViewModel: ViewModel() {
+    val myColor1 = Color(android.graphics.Color.parseColor("#222222"))
+    val myColor2 = Color(android.graphics.Color.parseColor("#1C5D99"))
+    val myFontFamily = FontFamily(Font(R.font.rubik))
 
     var deviceLatLng: MutableLiveData<LatLng> = MutableLiveData(LatLng(0.0, 0.0))
     var lastKnownLocation: MutableLiveData<LatLng>? = null

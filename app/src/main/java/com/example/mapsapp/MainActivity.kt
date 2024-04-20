@@ -3,12 +3,15 @@ package com.example.mapsapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -46,6 +49,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -118,38 +122,37 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                         scope.launch {
                             state.close()
                         }
-                    }
+                    },
+                    modifier = Modifier.padding(8.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "close icon"
+                        contentDescription = "close icon",
+                        Modifier.size(28.dp)
                     )
                 }
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(start = 16.dp, bottom = 32.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "user icon",
-                    modifier = Modifier.size(32.dp)
-                )
+                Image(painter = painterResource(id = R.drawable.user_icon), contentDescription = "user icon", Modifier.size(55.dp))
                 Text(
                     "${myViewModel.loggedUser.value}",
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(start = 16.dp),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 32.sp
+                    fontSize = 28.sp
                 )
             }
             Divider()
+            Spacer(modifier = Modifier.height(32.dp))
             NavigationDrawerItem(
                 label = {
-                    Row {
-                        Icon(Icons.Filled.FormatListNumbered, contentDescription = "list icon")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(painter = painterResource(id = R.drawable.marker_icon), contentDescription = "list icon")
                         Text(
                             text = "Marker list",
-                            modifier = Modifier.padding(start = 8.dp),
+                            modifier = Modifier.padding(start = 16.dp),
                             fontSize = 18.sp
                         )
                     }
@@ -164,13 +167,14 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                     }
                 }
             )
+            Spacer(modifier = Modifier.height(32.dp))
             NavigationDrawerItem(
                 label = {
-                    Row {
-                        Icon(Icons.Filled.Map, contentDescription = "map icon")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(painter = painterResource(id = R.drawable.map_icon), contentDescription = "map icon")
                         Text(
                             text = "Map",
-                            modifier = Modifier.padding(start = 8.dp),
+                            modifier = Modifier.padding(start = 16.dp),
                             fontSize = 18.sp
                         )
                     }
@@ -188,11 +192,13 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
             Spacer(modifier = Modifier.weight(1f))
             NavigationDrawerItem(
                 label = {
-                    Row {
-                        Icon(Icons.Filled.Output, contentDescription = "log-out icon")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(painter = painterResource(id = R.drawable.logout), contentDescription = "log-out icon")
                         Text(
                             text = "Log out",
-                            modifier = Modifier.padding(start = 8.dp),
+                            modifier = Modifier.padding(start = 16.dp),
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
@@ -207,6 +213,7 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                     navController.navigate(Routes.Login.route)
                 }
             )
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }) {
         MyScaffold (myViewModel, state, navController)
@@ -220,9 +227,14 @@ fun MyTopAppBar(myViewModel: ViewModel, state: DrawerState) {
     val scope = rememberCoroutineScope()
 
     TopAppBar(
-        title = { Text(text = "Maps App") },
+        title = {
+            Text(
+                text = "Maps App",
+                fontFamily = myViewModel.myFontFamily
+            )
+        },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
+            containerColor = myViewModel.myColor2,
             titleContentColor = Color.White,
             navigationIconContentColor = Color.White,
             actionIconContentColor = Color.White
@@ -237,7 +249,8 @@ fun MyTopAppBar(myViewModel: ViewModel, state: DrawerState) {
             ) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
-                    contentDescription = "Menu"
+                    contentDescription = "menu icon",
+                    Modifier.size(32.dp)
                 )
             }
         }

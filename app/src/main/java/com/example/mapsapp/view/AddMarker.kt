@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -51,7 +53,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -71,7 +72,8 @@ fun AddMarker(
 ) {
     var textFieldValue by rememberSaveable { mutableStateOf("") }
     val expanded = rememberSaveable { mutableStateOf(false) }
-    val type = rememberSaveable { mutableStateOf("Type") }
+    val typeOptions = listOf<String>("Shop", "Resuaturant", "Pub")
+    val typeChoosed = rememberSaveable { mutableStateOf("Type") }
 
     val context = LocalContext.current
     val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
@@ -135,79 +137,60 @@ fun AddMarker(
                 TextField(
                     value = textFieldValue,
                     onValueChange = { textFieldValue = it },
-                    label = { Text("Marker Name") },
+                    label = { Text("Marker Name", fontFamily = myViewModel.myFontFamily) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(32.dp))
                 )
+                OutlinedButton(
+                    onClick = { expanded.value = true },
+                    modifier = Modifier.clip(shape = MaterialTheme.shapes.small),
+                    colors = ButtonDefaults.buttonColors(Color.Transparent, myViewModel.myColor2)
+                ) {
+                    Text(typeChoosed.value, fontFamily = myViewModel.myFontFamily)
+                }
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    DropdownMenu(
+                        expanded = expanded.value,
+                        onDismissRequest = { expanded.value = false }
+                    ) {
+                        for (type in typeOptions) {
+                            DropdownMenuItem(
+                                text = { Text(type, fontFamily = myViewModel.myFontFamily) },
+                                onClick = {
+                                    typeChoosed.value = type
+                                    expanded.value = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Row(horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    OutlinedButton(
-                        onClick = { expanded.value = true },
-                        modifier = Modifier.clip(shape = MaterialTheme.shapes.small)
-                    ) {
-                        Text(type.value)
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        DropdownMenu(
-                            expanded = expanded.value,
-                            onDismissRequest = { expanded.value = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Shop") },
-                                onClick = {
-                                    type.value = "Shop"
-                                    expanded.value = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Restaurant") },
-                                onClick = {
-                                    type.value = "Restaurant"
-                                    expanded.value = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Gym") },
-                                onClick = {
-                                    type.value = "Gym"
-                                    expanded.value = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Pub") },
-                                onClick = {
-                                    type.value = "Pub"
-                                    expanded.value = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Mountain") },
-                                onClick = {
-                                    type.value = "Mountain"
-                                    expanded.value = false
-                                }
-                            )
-                        }
-                    }
                     Button(onClick = {
                         myViewModel.changeTakePhotoFromCreateMarker(true)
                         navController.navigate(Routes.TakePhoto.route)
-                    }) {
-                        Text("Take photo")
+                    },
+                        colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
+                    ) {
+                        Text("Take photo", fontFamily = myViewModel.myFontFamily)
                     }
                     Button(onClick = {
                         launchImage.launch("image/*")
-                    }) {
-                        Text("Gallery")
+                    },
+                        colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
+                    ) {
+                        Text("Gallery", fontFamily = myViewModel.myFontFamily)
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 LazyRow {
                     items(myViewModel.photosInTransit.size) { index ->
@@ -223,6 +206,8 @@ fun AddMarker(
                     }
                 }
 
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Button(
                     onClick = {
                         // Sube todas las fotos en photosInTransit al Storage
@@ -233,12 +218,13 @@ fun AddMarker(
                         // Limpia la lista de fotos en tránsito después de subirlas
                         myViewModel.photosInTransit = mutableListOf()
                         // Continúa con la lógica de guardar el marcador
-                        onTextFieldSubmitted(textFieldValue, type.value, myViewModel.photosInTransit)
+                        onTextFieldSubmitted(textFieldValue, typeChoosed.value, myViewModel.photosInTransit)
                         onDismiss()
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
                 ) {
-                    Text("Save")
+                    Text("Save", fontFamily = myViewModel.myFontFamily)
                 }
 
             }

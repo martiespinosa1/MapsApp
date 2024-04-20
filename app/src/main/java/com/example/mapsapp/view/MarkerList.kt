@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -42,7 +44,9 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mapsapp.navigation.Routes
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.example.mapsapp.R
 import com.google.android.gms.maps.model.LatLng
 
 @Composable
@@ -129,12 +133,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column {
-                    Icon(
-                        imageVector = Icons.Filled.LocationOn,
-                        contentDescription = "Location",
-                        tint = Color.Red,
-                        modifier = Modifier.size(100.dp)
-                    )
+                    Image(painter = painterResource(id = R.drawable.marker_icon), contentDescription = "marker icon", modifier = Modifier.size(100.dp).padding(start = 16.dp))
                 }
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -160,16 +159,20 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     Button(onClick = {
                         myViewModel.actualMarker.value = marker
                         navController.navigate(Routes.TakePhoto.route)
-                    }) {
-                        Text("Take photo")
+                    },
+                        colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
+                    ) {
+                        Text("Take photo", fontFamily = myViewModel.myFontFamily,)
                     }
 
                     Spacer(modifier = Modifier.size(12.dp))
                     Button(onClick = {
                         // TODO: Eliminar el marcador del Firestore también
                         myViewModel.removeMarker(marker)
-                    }) {
-                        Text("Delete Marker")
+                    },
+                        colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
+                    ) {
+                        Text("Delete Marker", fontFamily = myViewModel.myFontFamily,)
                     }
                 }
             }

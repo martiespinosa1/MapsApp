@@ -4,8 +4,12 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -13,15 +17,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import com.example.mapsapp.MainActivity
+import com.example.mapsapp.R
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.viewmodel.ViewModel
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -44,7 +55,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
         val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
         var lastKnownLocation by remember { mutableStateOf<Location?>(null) }
         //var deviceLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
-        val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(myViewModel.deviceLatLng.value!!, 18f) }
+        var cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(myViewModel.deviceLatLng.value!!, 18f) }
         //val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
         // Obtener la ubicación actual solo si lastKnownLocation es null
         if (lastKnownLocation == null) {
@@ -82,11 +93,13 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                 myViewModel.changePopUpVisibility(true)
             }
         ) {
+            val customMarkerIcon = BitmapDescriptorFactory.fromResource(R.drawable.marker)
             myMarkers.forEach { marker ->
                 Marker(
                     state = MarkerState(position = LatLng(marker.latitude, marker.longitude)),
                     title = marker.name,
-                    snippet = "Type: ${marker.type}"
+                    snippet = "Type: ${marker.type}",
+                    icon = customMarkerIcon
                 )
             }
         }
@@ -105,8 +118,19 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             )
         }
 
-//        if (myMarkers.isEmpty()) {
-//            Toast.makeText(context, "TESTTESTTEST", Toast.LENGTH_LONG).show()
-//        }
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.BottomEnd)
+        ) {
+            Image(painter = painterResource(id = R.drawable.plus_icon), contentDescription = "plus icon",
+                Modifier
+                    .size(60.dp)
+                    .clickable {
+                        myViewModel.changePopUpVisibility(true)
+                    }
+            )
+        }
+
     }
 }
