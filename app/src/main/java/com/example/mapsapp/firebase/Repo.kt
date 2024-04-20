@@ -16,7 +16,8 @@ class Repo {
             .add(
                 hashMapOf(
                     "name" to marker.name,
-                    "coordinates" to marker.coordinates,
+                    "latitude" to marker.latitude,
+                    "longitude" to marker.longitude,
                     "type" to marker.type,
                     "photos" to marker.photos,
                     "userId" to marker.userId,

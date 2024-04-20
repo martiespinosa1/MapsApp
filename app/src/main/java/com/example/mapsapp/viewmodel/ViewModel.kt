@@ -29,14 +29,7 @@ class ViewModel: ViewModel() {
     var deviceLatLng: MutableLiveData<LatLng> = MutableLiveData(LatLng(0.0, 0.0))
     var lastKnownLocation: MutableLiveData<LatLng>? = null
 
-
-    private var _marker = MutableLiveData(MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null, ""))
-    var marker = _marker
-
-//    private var _markers = MutableLiveData<MutableList<MarkerInfo>>()
-//    val markers = _markers
-
-    private var _currentMarker: MarkerInfo = MarkerInfo("ITB", LatLng(41.4534265, 2.1837151), "itb", null, "")
+    private var _currentMarker: MarkerInfo = MarkerInfo("ITB", latitude = 41.4534265, longitude = 2.1837151, "itb", null, "")
     var currentMarker = _currentMarker
 
     private val _fotos = MutableLiveData<MutableList<String>>(mutableListOf())
@@ -107,15 +100,22 @@ class ViewModel: ViewModel() {
     private var _markerList: MutableLiveData<MutableList<MarkerInfo>> = MutableLiveData(mutableListOf())
     var markerList = _markerList
 
-    private var _actualMarker: MutableLiveData<MarkerInfo> = MutableLiveData(MarkerInfo("", LatLng(0.0, 0.0), "Type", null, ""))
+    private var _actualMarker: MutableLiveData<MarkerInfo> = MutableLiveData(MarkerInfo("", latitude = 0.0, longitude = 0.0, "Type", null, ""))
     var actualMarker = _actualMarker
 
 //    private var _email: MutableLiveData<String> = MutableLiveData("")
 //
 //    private var _password: MutableLiveData<String> = MutableLiveData("")
 //
+
+    fun addMarker(marker: MarkerInfo) {
+        val currentMarkers = _markerList.value ?: mutableListOf()
+        currentMarkers.add(marker)
+        _markerList.value = currentMarkers
+        repository.addMarker(marker) // Guardar en Firebase
+    }
     fun getMarkers() {
-        repository.getUsers().addSnapshotListener { value, error ->
+        repository.getMarkers().addSnapshotListener { value, error ->
             if (error != null) {
                 Log.e("Firebase error", error.message.toString())
                 return@addSnapshotListener
@@ -178,6 +178,9 @@ class ViewModel: ViewModel() {
     private var _loginFail: MutableLiveData<Boolean> = MutableLiveData(false)
     var loginFail = _loginFail
 
+    private var _registering: MutableLiveData<Boolean> = MutableLiveData(false)
+    var registering = _registering
+
     fun register(email: String?, password: String?) {
         if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             auth.createUserWithEmailAndPassword(email ?: "", password ?: "")
@@ -204,7 +207,11 @@ class ViewModel: ViewModel() {
     }
 
     fun login(email: String?, password: String?) {
-        auth.signInWithEmailAndPassword(email ?: "", password ?: "")
+        if (email.isNullOrBlank() || password.isNullOrBlank()) {
+            Log.d("Error", "Empty email or password")
+            return
+        }
+        auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _userId.value = task.result?.user?.uid
@@ -225,6 +232,7 @@ class ViewModel: ViewModel() {
                 modifyProcessing()
             }
     }
+
 
 
     fun logout() {

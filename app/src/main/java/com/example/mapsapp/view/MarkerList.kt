@@ -43,6 +43,7 @@ import com.example.mapsapp.navigation.Routes
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun MarkerList(myViewModel: ViewModel, navController: NavController) {
@@ -105,8 +106,8 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
     Card(
         onClick = {
             navController.navigate(Routes.Map.route) {
-                myViewModel.deviceLatLng.value = marker.coordinates // TODO: No va
-                myViewModel.lastKnownLocation?.value = marker.coordinates
+                myViewModel.deviceLatLng.value = LatLng(marker.latitude, marker.longitude) // TODO: No va
+                myViewModel.lastKnownLocation?.value = LatLng(marker.latitude, marker.longitude)
                 launchSingleTop = true
                 popUpTo(Routes.Map.route) {
                     saveState = true
@@ -153,7 +154,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     }
                     Spacer(modifier = Modifier.size(12.dp))
                     Button(onClick = {
-                        myViewModel.currentMarker = marker
+                        myViewModel.actualMarker.value = marker
                         navController.navigate(Routes.TakePhoto.route)
                     }) {
                         Text("Take photo")

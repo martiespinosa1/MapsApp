@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.FormatListNumbered
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Output
 import androidx.compose.material.icons.filled.PersonOutline
+import androidx.compose.material.icons.filled.PersonPin
 import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
@@ -119,7 +121,7 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "Close"
+                        contentDescription = "close icon"
                     )
                 }
             }
@@ -128,15 +130,15 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
                 modifier = Modifier.padding(16.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.PersonOutline,
-                    contentDescription = "Icono de usuario",
-                    modifier = Modifier.size(28.dp)
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "user icon",
+                    modifier = Modifier.size(32.dp)
                 )
                 Text(
                     "${myViewModel.loggedUser.value}",
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 28.sp
+                    fontSize = 32.sp
                 )
             }
             Divider()

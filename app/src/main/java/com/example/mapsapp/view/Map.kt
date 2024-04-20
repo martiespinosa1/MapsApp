@@ -86,7 +86,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
         ) {
             myMarkers.forEach { marker ->
                 Marker(
-                    state = MarkerState(position = marker.coordinates),
+                    state = MarkerState(position = LatLng(marker.latitude, marker.longitude)),
                     title = marker.name,
                     snippet = "Type: ${marker.type}"
                 )
@@ -98,7 +98,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                 onDismiss = { myViewModel.changePopUpVisibility(false) },
                 onTextFieldSubmitted = { name, type, photos ->
                     val currentMarkers = myViewModel.markerList.value ?: mutableListOf()
-                    val newMarker = MarkerInfo(name = name, coordinates = popupCoordinates, type = type, photos = photos, userId = null)
+                    val newMarker = MarkerInfo(name = name, latitude = popupCoordinates.latitude, longitude = popupCoordinates.longitude, type = type, photos = photos, userId = null)
                     currentMarkers.add(newMarker)
                     myViewModel.markerList.value = currentMarkers
                     myViewModel.changePopUpVisibility(false)
