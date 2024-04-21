@@ -2,7 +2,7 @@ package com.example.mapsapp.navigation
 
 sealed class Routes(val route: String) {
     object Launch: Routes("Launch")
-    object Login: Routes("login")
+    object Login: Routes("Login")
     object Map: Routes("Map")
     object AddMarker: Routes("AddMarker")
     object MarkerList: Routes("MarkerList")

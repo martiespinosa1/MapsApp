@@ -72,7 +72,7 @@ fun LaunchAnimation(myViewModel: ViewModel, navController: NavController) {
     LaunchedEffect(key1 = true) {
         startAnimation = true
         delay(2000)
-        navController.popBackStack()
+        //navController.popBackStack()
         navController.navigate(if (myViewModel.getAuth().currentUser == null) {
             Routes.Login.route
         } else Routes.Map.route)

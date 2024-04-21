@@ -34,6 +34,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -47,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,7 +74,7 @@ fun AddMarker(
 ) {
     var textFieldValue by rememberSaveable { mutableStateOf("") }
     val expanded = rememberSaveable { mutableStateOf(false) }
-    val typeOptions = listOf<String>("Shop", "Resuaturant", "Pub")
+    val typeOptions = listOf<String>("Shop", "Restaurant", "Pub", "Gym", "Mountain", "Park")
     val typeChoosed = rememberSaveable { mutableStateOf("Type") }
 
     val context = LocalContext.current
@@ -105,16 +107,22 @@ fun AddMarker(
         contract = ActivityResultContracts.GetContent(),
         onResult = {
             if (Build.VERSION.SDK_INT < 28) {
-                bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
                 if (it != null) {
+                    myViewModel.photosInTransit.add(it.toString())
                     myViewModel.uploadImage(it)
                 }
+
+//                bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+//                if (it != null) {
+//                    myViewModel.uploadImage(it)
+//                }
             } else {
                 val source = it?.let { itl ->
                     ImageDecoder.createSource(context.contentResolver, itl) }
 
                 source?.let { itl ->  ImageDecoder.decodeBitmap(itl) }
                 if (it != null) {
+                    myViewModel.photosInTransit.add(it.toString())
                     myViewModel.uploadImage(it)
                 }
             }
@@ -134,36 +142,47 @@ fun AddMarker(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                TextField(
-                    value = textFieldValue,
-                    onValueChange = { textFieldValue = it },
-                    label = { Text("Marker Name", fontFamily = myViewModel.myFontFamily) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(32.dp))
-                )
-                OutlinedButton(
-                    onClick = { expanded.value = true },
-                    modifier = Modifier.clip(shape = MaterialTheme.shapes.small),
-                    colors = ButtonDefaults.buttonColors(Color.Transparent, myViewModel.myColor2)
-                ) {
-                    Text(typeChoosed.value, fontFamily = myViewModel.myFontFamily)
-                }
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    DropdownMenu(
-                        expanded = expanded.value,
-                        onDismissRequest = { expanded.value = false }
+                Row {
+                    TextField(
+                        value = textFieldValue,
+                        onValueChange = { textFieldValue = it },
+                        label = { Text("Marker Name", fontFamily = myViewModel.myFontFamily, style = TextStyle(fontSize = 14.sp)) },
+                        textStyle = TextStyle(fontFamily = myViewModel.myFontFamily, fontSize = 14.sp),
+                        modifier = Modifier
+                            .fillMaxWidth(0.6f)
+                            .clip(RoundedCornerShape(32.dp)),
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        )
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    OutlinedButton(
+                        onClick = { expanded.value = true },
+                        modifier = Modifier.clip(shape = MaterialTheme.shapes.small),
+                        colors = ButtonDefaults.buttonColors(
+                            Color.Transparent,
+                            myViewModel.myColor2
+                        )
                     ) {
-                        for (type in typeOptions) {
-                            DropdownMenuItem(
-                                text = { Text(type, fontFamily = myViewModel.myFontFamily) },
-                                onClick = {
-                                    typeChoosed.value = type
-                                    expanded.value = false
-                                }
-                            )
+                        Text(typeChoosed.value, fontFamily = myViewModel.myFontFamily)
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        DropdownMenu(
+                            expanded = expanded.value,
+                            onDismissRequest = { expanded.value = false }
+                        ) {
+                            for (type in typeOptions) {
+                                DropdownMenuItem(
+                                    text = { Text(type, fontFamily = myViewModel.myFontFamily) },
+                                    onClick = {
+                                        typeChoosed.value = type
+                                        expanded.value = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }

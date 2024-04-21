@@ -66,7 +66,6 @@ import kotlinx.coroutines.delay
 fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
     val myMarkers: List<MarkerInfo> by myViewModel.markerList.observeAsState(emptyList())
 
-
     val context = LocalContext.current
     val controller = remember {
         LifecycleCameraController(context).apply {
@@ -101,24 +100,21 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
     LaunchedEffect(Unit) {
         cameraPermissionState.launchPermissionRequest()
     }
+
     if(cameraPermissionState.status.isGranted) {
         Box(modifier = Modifier.fillMaxSize()) {
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.White.copy(alpha = if (myViewModel.showOverlay.value == true) 1f else 0f)),
                 contentAlignment = Alignment.Center
             ) {
-
                 CameraPreview(controller = controller, modifier = Modifier.fillMaxSize())
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .fillMaxSize()
-                        .align(
-                            Alignment.BottomCenter
-                        )
+                        .align(Alignment.BottomCenter)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -127,46 +123,32 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                             .fillMaxWidth()
                             .background(Color.DarkGray)
                     ) {
-                        IconButton(
-                            onClick = {
-                                myViewModel.changeTakePhotoFromCreateMarker(false)
-                                navController.popBackStack()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBackIosNew,
-                                contentDescription = "Go back"
-                            )
+                        IconButton(onClick = {
+                            myViewModel.changeTakePhotoFromCreateMarker(false)
+                            navController.popBackStack()
+                        }) {
+                            Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Go back")
                         }
-                        IconButton(
-                            onClick = {
-                                controller.cameraSelector =
-                                    if (controller.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
-                                        CameraSelector.DEFAULT_FRONT_CAMERA
-                                    } else {
-                                        CameraSelector.DEFAULT_BACK_CAMERA
-                                    }
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Cameraswitch,
-                                contentDescription = "Switch camera"
-                            )
+                        IconButton(onClick = {
+                            controller.cameraSelector =
+                                if (controller.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                                    CameraSelector.DEFAULT_FRONT_CAMERA
+                                } else {
+                                    CameraSelector.DEFAULT_BACK_CAMERA
+                                }
+                        }) {
+                            Icon(imageVector = Icons.Default.Cameraswitch, contentDescription = "Switch camera")
                         }
-                        IconButton(
-                            onClick = {
-                                launchImage.launch("image/*")
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Photo,
-                                contentDescription = "Open gallery"
-                            )
+                        IconButton(onClick = {
+                            launchImage.launch("image/*")
+                        }) {
+                            Icon(imageVector = Icons.Default.Photo, contentDescription = "Open gallery")
                         }
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
 
+                    // Botón para tomar la foto
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.padding(bottom = 16.dp)
@@ -176,17 +158,17 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                                 myViewModel.showOverlay.value = true
 
                                 if (myViewModel.takePhotoFromCreateMarker.value == true) {
-                                    takePhoto(context, controller) { photo ->
-                                        // TODO: MIRAR ESTO PARA LAS IMAGENES
+                                    takePhoto(myViewModel, context, controller) { photo ->
                                         myViewModel.photosInTransit.add(myViewModel.bitmapToUri(context, photo).toString())
                                         val newUriPhoto = myViewModel.bitmapToUri(context, photo)
                                         if (newUriPhoto != null) {
                                             myViewModel.uploadImage(newUriPhoto)
                                         }
+                                        // Después de tomar la foto, establecemos showOverlay en false
+                                        myViewModel.showOverlay.value = false
                                     }
                                 } else {
-                                    takePhoto(context, controller) { photo ->
-                                        // TODO: MIRAR ESTO PARA LAS IMAGENES
+                                    takePhoto(myViewModel, context, controller) { photo ->
                                         addPotoToMarker(
                                             myViewModel.actualMarker.value ?: myViewModel.currentMarker,
                                             myViewModel.bitmapToUri(context, photo).toString(),
@@ -196,10 +178,10 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                                         if (newUriPhoto != null) {
                                             myViewModel.uploadImage(newUriPhoto)
                                         }
-
+                                        // Después de tomar la foto, establecemos showOverlay en false
+                                        myViewModel.showOverlay.value = false
                                     }
                                 }
-                                //myViewModel.showOverlay.value = false
                             },
                             modifier = Modifier.background(
                                 color = MaterialTheme.colorScheme.background,
@@ -209,7 +191,6 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                             Icon(
                                 imageVector = Icons.Default.PhotoCamera,
                                 contentDescription = "Take photo"
-
                             )
                         }
                     }
@@ -222,12 +203,14 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
     }
 }
 
+
 suspend fun backToNormal(myViewModel: ViewModel) {
     delay(1000)
     myViewModel.showOverlay.value = false
 }
 
 private fun takePhoto(
+    myViewModel: ViewModel,
     context: Context,
     controller: LifecycleCameraController,
     onPhotoTaken: (Bitmap) -> Unit
@@ -240,6 +223,8 @@ private fun takePhoto(
                 val bitmap = rotateImageIfNeeded(image.toBitmap(), image.imageInfo.rotationDegrees)
                 onPhotoTaken(bitmap)
                 image.close()
+                // Después de tomar la foto, establece showOverlay en false
+                myViewModel.showOverlay.value = false
             }
 
             override fun onError(exception: ImageCaptureException) {
@@ -249,6 +234,7 @@ private fun takePhoto(
         }
     )
 }
+
 
 private fun rotateImageIfNeeded(bitmap: Bitmap, rotationDegrees: Int): Bitmap {
     return if (rotationDegrees != 0) {

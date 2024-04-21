@@ -1,5 +1,6 @@
 package com.example.mapsapp.view
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,11 +22,15 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -36,7 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -50,6 +57,7 @@ import androidx.navigation.NavController
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.viewmodel.ViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogIn(myViewModel: ViewModel, navController: NavController) {
     var textUserName = remember { mutableStateOf(TextFieldValue("")) }
@@ -60,6 +68,8 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
     var passwordVisibleRepeat = remember { mutableStateOf(false) }
 
     val registering by myViewModel.registering.observeAsState()
+
+    var rememberUser by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -77,7 +87,7 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
         ) {
             Column {
                 Text(
-                    text = if (registering == true) "Register" else "Login",
+                    text = if (registering == true) "Sign up" else "Log in",
                     fontSize = 38.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -133,22 +143,33 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                             }
                         },
                         textStyle = TextStyle(fontFamily = myViewModel.myFontFamily, fontSize = 12.sp),
-                        modifier = Modifier.padding(vertical = 10.dp)
+                        modifier = Modifier.padding(vertical = 10.dp),
+//                        colors = TextFieldDefaults.textFieldColors(
+//                            focusedIndicatorColor = myViewModel.myColor2,
+//                        )
                     )
                 }
 
-                if (myViewModel.registerFail.value == true) {
-                    Text(text = "Fallo de registro", color = Color.Red.copy(alpha = 0.6f))
-                }
-                if (myViewModel.loginFail.value == true) {
-                    Text(text = "Fallo de login", color = Color.Red.copy(alpha = 0.6f))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "Remember me", fontFamily = myViewModel.myFontFamily, style = TextStyle(fontSize = 12.sp))
+                    Checkbox(
+                        checked = rememberUser,
+                        onCheckedChange = { rememberUser = it },
+                        modifier = Modifier.padding(end = 8.dp),
+                        colors = CheckboxDefaults.colors(checkedColor = myViewModel.myColor2, checkmarkColor = myViewModel.myColor1)
+                    )
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 Button(onClick = {
                     if (registering == true) {
-                        myViewModel.register(textUserEmail.value.text, textUserPassword.value.text)
+                        if (textUserPassword == textUserPasswordRepeat) {
+                            myViewModel.register(
+                                textUserEmail.value.text,
+                                textUserPassword.value.text
+                            )
+                        }
                     } else {
                         myViewModel.login(textUserEmail.value.text, textUserPassword.value.text)
                     }
@@ -173,7 +194,7 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = if (registering == true) "Already have an account? " else "Don't have an account? ", fontSize = 12.sp)
             Text(
-                text = if (registering == true) "Log in" else "Register",
+                text = if (registering == true) "Log in" else "Sign up",
                 textDecoration = TextDecoration.Underline,
                 fontSize = 12.sp,
                 modifier = Modifier
@@ -181,6 +202,13 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                         myViewModel.registering.value = !myViewModel.registering.value!!
                     }
             )
+        }
+
+        if (myViewModel.registerFail.value == true) {
+            Toast.makeText(LocalContext.current, "Sign up failed", Toast.LENGTH_SHORT).show()
+        }
+        if (myViewModel.loginFail.value == true) {
+            Toast.makeText(LocalContext.current, "Log in failed", Toast.LENGTH_SHORT).show()
         }
 
     }
