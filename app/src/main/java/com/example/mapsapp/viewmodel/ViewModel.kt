@@ -246,7 +246,7 @@ class ViewModel: ViewModel() {
         auth.signOut()
     }
 
-    private fun modifyProcessing() {
+    fun modifyProcessing() {
         _showCircularProgressBar.value = _showCircularProgressBar.value != true
     }
 

@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -54,8 +55,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mapsapp.firebase.UserPrefs
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.viewmodel.ViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +75,15 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
     val registering by myViewModel.registering.observeAsState()
 
     var rememberUser by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val userPrefs = UserPrefs(context)
+    val storeUserData = userPrefs.getUserData.collectAsState(initial = emptyList())
+
+    if (storeUserData.value.isNotEmpty() && storeUserData.value[0] != "" && storeUserData.value[1] != "") {
+        myViewModel.modifyProcessing()
+        myViewModel.login(storeUserData.value[0], storeUserData.value[1])
+        navController.navigate(Routes.Map.route)
+    }
 
     Column(
         modifier = Modifier
@@ -173,6 +187,7 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                     } else {
                         myViewModel.login(textUserEmail.value.text, textUserPassword.value.text)
                     }
+                    if (rememberUser) { CoroutineScope(Dispatchers.IO).launch { userPrefs.saveUserData(textUserName.value.text, textUserPassword.value.text) } }
                     if (myViewModel.goToNext.value == true) { navController.navigate(Routes.Map.route) }
                 },
                     modifier = Modifier.width(300.dp),

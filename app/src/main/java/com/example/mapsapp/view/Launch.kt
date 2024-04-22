@@ -73,9 +73,7 @@ fun LaunchAnimation(myViewModel: ViewModel, navController: NavController) {
         startAnimation = true
         delay(2000)
         //navController.popBackStack()
-        navController.navigate(if (myViewModel.getAuth().currentUser == null) {
-            Routes.Login.route
-        } else Routes.Map.route)
+        navController.navigate(Routes.Login.route)
     }
     Launch(alphaAnim.value)
 }
