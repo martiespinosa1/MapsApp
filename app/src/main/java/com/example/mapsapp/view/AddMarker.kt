@@ -74,7 +74,7 @@ fun AddMarker(
 ) {
     var textFieldValue by rememberSaveable { mutableStateOf("") }
     val expanded = rememberSaveable { mutableStateOf(false) }
-    val typeOptions = listOf<String>("Shop", "Restaurant", "Pub", "Gym", "Mountain", "Park")
+    val typeOptions = listOf<String>("Shop", "Restaurant", "Pub", "Gym", "Mountain", "Park", "Museum", "Library")
     val typeChoosed = rememberSaveable { mutableStateOf("Type") }
 
     val context = LocalContext.current
@@ -105,29 +105,28 @@ fun AddMarker(
     var bitmap by remember { mutableStateOf(img) }
     val launchImage = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
-        onResult = {
+        onResult = { uri ->
             if (Build.VERSION.SDK_INT < 28) {
-                if (it != null) {
-                    myViewModel.photosInTransit.add(it.toString())
-                    myViewModel.uploadImage(it)
+                if (uri != null) {
+                    val uriString = uri.toString()
+                    val updatedPhotos = myViewModel.photosInTransit.value?.let { mutableListOf(*it.toTypedArray(), uriString) }
+                    myViewModel.photosInTransit.value = updatedPhotos
+                    myViewModel.uploadImage(uri)
                 }
-
-//                bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-//                if (it != null) {
-//                    myViewModel.uploadImage(it)
-//                }
             } else {
-                val source = it?.let { itl ->
+                val source = uri?.let { itl ->
                     ImageDecoder.createSource(context.contentResolver, itl) }
 
                 source?.let { itl ->  ImageDecoder.decodeBitmap(itl) }
-                if (it != null) {
-                    myViewModel.photosInTransit.add(it.toString())
-                    myViewModel.uploadImage(it)
+                if (uri != null) {
+                    val updatedPhotos = myViewModel.photosInTransit.value?.let { mutableListOf(*it.toTypedArray(), uri.toString()) }
+                    myViewModel.photosInTransit.value = updatedPhotos
+                    myViewModel.uploadImage(uri)
                 }
             }
         }
     )
+
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Surface(
@@ -212,16 +211,18 @@ fun AddMarker(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 LazyRow {
-                    items(myViewModel.photosInTransit.size) { index ->
-                        GlideImage(
-                            model = myViewModel.photosInTransit[index],
-                            contentDescription = "Marker's Photo",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(100.dp)
-                                .padding(8.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                        )
+                    myViewModel.photosInTransit.value?.let {
+                        items(it.size) { index ->
+                            GlideImage(
+                                model = myViewModel.photosInTransit.value!![index],
+                                contentDescription = "Marker's Photo",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(8.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                            )
+                        }
                     }
                 }
 
@@ -230,14 +231,14 @@ fun AddMarker(
                 Button(
                     onClick = {
                         // Sube todas las fotos en photosInTransit al Storage
-                        myViewModel.photosInTransit.forEach { photoUriString ->
+                        myViewModel.photosInTransit.value?.forEach { photoUriString ->
                             val photoUri = Uri.parse(photoUriString)
                             myViewModel.uploadImage(photoUri)
                         }
                         // Limpia la lista de fotos en tránsito después de subirlas
-                        myViewModel.photosInTransit = mutableListOf()
+                        myViewModel.photosInTransit.value = mutableListOf()
                         // Continúa con la lógica de guardar el marcador
-                        onTextFieldSubmitted(textFieldValue, typeChoosed.value, myViewModel.photosInTransit)
+                        onTextFieldSubmitted(textFieldValue, typeChoosed.value, myViewModel.photosInTransit.value)
                         onDismiss()
                     },
                     modifier = Modifier.fillMaxWidth(),

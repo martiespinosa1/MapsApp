@@ -6,6 +6,9 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -38,7 +41,7 @@ class ViewModel: ViewModel() {
     private val _fotos = MutableLiveData<MutableList<String>>(mutableListOf())
     val fotos = _fotos
 
-    private val _photosInTransit = mutableListOf<String>()
+    private val _photosInTransit = MutableLiveData<MutableList<String>>(mutableListOf())
     var photosInTransit = _photosInTransit
 
     private var _takePhotoFromCreateMarker = MutableLiveData(false)
@@ -92,7 +95,7 @@ class ViewModel: ViewModel() {
     }
 
     fun addImageToTransit(image: String) {
-        _photosInTransit.add(image)
+        _photosInTransit.value?.add(image)
     }
 
 

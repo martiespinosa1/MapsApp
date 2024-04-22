@@ -159,7 +159,7 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
 
                                 if (myViewModel.takePhotoFromCreateMarker.value == true) {
                                     takePhoto(myViewModel, context, controller) { photo ->
-                                        myViewModel.photosInTransit.add(myViewModel.bitmapToUri(context, photo).toString())
+                                        myViewModel.photosInTransit.value?.add(myViewModel.bitmapToUri(context, photo).toString())
                                         val newUriPhoto = myViewModel.bitmapToUri(context, photo)
                                         if (newUriPhoto != null) {
                                             myViewModel.uploadImage(newUriPhoto)
