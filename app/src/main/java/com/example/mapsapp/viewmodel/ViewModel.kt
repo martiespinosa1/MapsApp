@@ -6,9 +6,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -17,6 +14,7 @@ import androidx.lifecycle.ViewModel
 import com.example.mapsapp.R
 import com.example.mapsapp.firebase.Repo
 import com.example.mapsapp.model.MarkerInfo
+import com.example.mapsapp.model.UserModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
@@ -120,23 +118,26 @@ class ViewModel: ViewModel() {
         _markerList.value = currentMarkers
         repository.addMarker(marker) // Guardar en Firebase
     }
-    fun getMarkers() {
-        repository.getMarkers().addSnapshotListener { value, error ->
-            if (error != null) {
-                Log.e("Firebase error", error.message.toString())
-                return@addSnapshotListener
-            }
-            val tempList = mutableListOf<MarkerInfo>()
-            for (dc: DocumentChange in value?.documentChanges!!) {
-                if (dc.type == DocumentChange.Type.ADDED) {
-                    val newMarker = dc.document.toObject(MarkerInfo::class.java)
-                    newMarker.userId = dc.document.id
-                    tempList.add(newMarker)
+    fun getMarkers(userId: String) {
+        repository.getMarkers()
+            .whereEqualTo("userId", userId)
+            .addSnapshotListener { value, error ->
+                if (error != null) {
+                    Log.e("Firebase error", error.message.toString())
+                    return@addSnapshotListener
                 }
+                val tempList = mutableListOf<MarkerInfo>()
+                for (dc: DocumentChange in value?.documentChanges!!) {
+                    if (dc.type == DocumentChange.Type.ADDED) {
+                        val newMarker = dc.document.toObject(MarkerInfo::class.java)
+                        newMarker.userId = dc.document.id
+                        tempList.add(newMarker)
+                    }
+                }
+                _markerList.value = tempList
             }
-            _markerList.value = tempList
-        }
     }
+
 
     fun getMarker(markerId: String) {
         repository.getMarker(markerId).addSnapshotListener { value, error ->
@@ -176,8 +177,10 @@ class ViewModel: ViewModel() {
 
     private var _userId: MutableLiveData<String> = MutableLiveData("")
     var userId = _userId
-    private var _loggedUser: MutableLiveData<String> = MutableLiveData("")
-    var loggedUser = _loggedUser
+    private var _actualUser: MutableLiveData<UserModel> = MutableLiveData(UserModel("", "", ""))
+    var actualUser = _actualUser
+    private var _actualUserName: MutableLiveData<String> = MutableLiveData("")
+    var actualUserName = _actualUserName
     private var _goToNext: MutableLiveData<Boolean> = MutableLiveData(false)
     var goToNext = _goToNext
     private var _showCircularProgressBar: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -225,9 +228,9 @@ class ViewModel: ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _userId.value = task.result?.user?.uid
-                    _loggedUser.value = task.result?.user?.email?.split("@")?.get(0)
+                    _actualUserName.value = task.result?.user?.email?.split("@")?.get(0)
                     _goToNext.value = true
-                    getMarkers()
+                    getMarkers(_userId.value ?: "")
                 } else {
                     Log.d("Error", "Error login in: ${task.exception?.message}")
                     _goToNext.value = false
@@ -243,7 +246,24 @@ class ViewModel: ViewModel() {
             }
     }
 
-
+    fun getUser(userId: String) {
+        repository.getUser(userId).addSnapshotListener { value, error ->
+            if (error != null) {
+                Log.e("UserRepository", "Listen failted", error)
+                return@addSnapshotListener
+            }
+            if (value != null && value.exists()) {
+                val user = value.toObject(UserModel::class.java)
+                if (user != null) {
+                    user.userId = userId
+                }
+                _actualUser.value = user
+                _actualUserName.value = _actualUser.value?.userName
+            } else {
+                Log.e("UserRepository", "Current data: null")
+            }
+        }
+    }
 
     fun logout() {
         auth.signOut()

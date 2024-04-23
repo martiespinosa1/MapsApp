@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,17 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.FormatListNumbered
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Output
-import androidx.compose.material.icons.filled.PersonOutline
-import androidx.compose.material.icons.filled.PersonPin
-import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -51,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -62,7 +51,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mapsapp.navigation.Routes
 import com.example.mapsapp.ui.theme.MapsAppTheme
-import com.example.mapsapp.view.AddMarker
 import com.example.mapsapp.view.LaunchAnimation
 import com.example.mapsapp.view.LogIn
 import com.example.mapsapp.view.Map
@@ -138,7 +126,7 @@ fun MyDrawer (myViewModel: ViewModel, navController: NavController) {
             ) {
                 Image(painter = painterResource(id = R.drawable.user_icon), contentDescription = "user icon", Modifier.size(55.dp))
                 Text(
-                    "${myViewModel.loggedUser.value}",
+                    "${myViewModel.actualUserName.value}",
                     modifier = Modifier.padding(start = 16.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 23.sp

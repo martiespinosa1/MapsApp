@@ -219,6 +219,10 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
             )
         }
 
+        if (myViewModel.goToNext.value == true) {
+            myViewModel.getUser(myViewModel.userId.value!!)
+        }
+
         if (myViewModel.registerFail.value == true) {
             Toast.makeText(LocalContext.current, "Sign up failed", Toast.LENGTH_SHORT).show()
         }
@@ -229,9 +233,3 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
     }
 }
 
-
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun LogInPreview() {
-//    LogIn()
-//}

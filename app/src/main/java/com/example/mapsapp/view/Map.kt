@@ -108,12 +108,13 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             AddMarker(myViewModel, navController,
                 onDismiss = { myViewModel.changePopUpVisibility(false) },
                 onTextFieldSubmitted = { name, type, photos ->
-                    val currentMarkers = myViewModel.markerList.value ?: mutableListOf()
-                    val newMarker = MarkerInfo(name = name, latitude = popupCoordinates.latitude, longitude = popupCoordinates.longitude, type = type, photos = photos, userId = null)
-                    currentMarkers.add(newMarker)
-                    myViewModel.markerList.value = currentMarkers
+                    //val currentMarkers = myViewModel.markerList.value ?: mutableListOf()
+                    val newMarker = MarkerInfo(name = name, latitude = popupCoordinates.latitude, longitude = popupCoordinates.longitude, type = type, photos = photos, userId = myViewModel.userId.value)
+                    //currentMarkers.add(newMarker)
+                    //myViewModel.markerList.value = currentMarkers
+                    myViewModel.addMarker(newMarker)
                     myViewModel.changePopUpVisibility(false)
-                    saveMarkerToFirebase(newMarker)
+                    //saveMarkerToFirebase(newMarker)
                 }
             )
         }
