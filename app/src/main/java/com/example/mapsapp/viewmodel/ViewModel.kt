@@ -36,6 +36,11 @@ class ViewModel: ViewModel() {
     private var _currentMarker: MarkerInfo = MarkerInfo("ITB", latitude = 41.4534265, longitude = 2.1837151, "itb", null, "")
     var currentMarker = _currentMarker
 
+    private val _filterType = MutableLiveData<String>("")
+    var filterType = _filterType
+    private val _filteredMarkers = MutableLiveData<MutableList<MarkerInfo>>(mutableListOf())
+    var filteredMarkers = _filteredMarkers
+
     private val _fotos = MutableLiveData<MutableList<String>>(mutableListOf())
     val fotos = _fotos
 
@@ -138,6 +143,29 @@ class ViewModel: ViewModel() {
                 _markerList.value = tempList
             }
     }
+
+    fun getMarkersOfAType(userId: String, type: String, callback: (List<MarkerInfo>) -> Unit) {
+        val tempList = mutableListOf<MarkerInfo>()
+        repository.getMarkers()
+            .whereEqualTo("userId", userId)
+            .whereEqualTo("type", type)
+            .addSnapshotListener { value, error ->
+                if (error != null) {
+                    Log.e("Firebase error", error.message.toString())
+                    callback(emptyList()) // Llama a la devolución de llamada con una lista vacía en caso de error
+                    return@addSnapshotListener
+                }
+                for (dc: DocumentChange in value?.documentChanges!!) {
+                    if (dc.type == DocumentChange.Type.ADDED) {
+                        val newMarker = dc.document.toObject(MarkerInfo::class.java)
+                        newMarker.userId = dc.document.id
+                        tempList.add(newMarker)
+                    }
+                }
+                callback(tempList) // Llama a la devolución de llamada con la lista actualizada
+            }
+    }
+
 
 
     fun getMarker(markerId: String) {

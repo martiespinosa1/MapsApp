@@ -74,7 +74,7 @@ fun AddMarker(
 ) {
     var textFieldValue by rememberSaveable { mutableStateOf("") }
     val expanded = rememberSaveable { mutableStateOf(false) }
-    val typeOptions = listOf<String>("Shop", "Restaurant", "Pub", "Gym", "Mountain", "Park", "Museum", "Library")
+    val typeOptions = listOf<String>("Shop", "Pub", "Gym", "Park", "Museum")
     val typeChoosed = rememberSaveable { mutableStateOf("Type") }
 
     val context = LocalContext.current

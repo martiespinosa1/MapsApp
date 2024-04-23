@@ -82,9 +82,27 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
         PermisionDeclinedScreen()
     }
 
+
+
+    if (myViewModel.filterType.value == "" || myViewModel.filterType.value == "All") {
+        myViewModel.filteredMarkers.value = myViewModel.markerList.value!!
+    } else if (myViewModel.filterType.value == "Other") {
+        myViewModel.getMarkersOfAType(myViewModel.userId.value ?: "", "") { filteredMarkers ->
+            myViewModel.filteredMarkers.value = filteredMarkers.toMutableList()
+        }
+    } else {
+        myViewModel.getMarkersOfAType(myViewModel.userId.value ?: "", myViewModel.filterType.value ?: "") { filteredMarkers ->
+            myViewModel.filteredMarkers.value = filteredMarkers.toMutableList()
+        }
+    }
+
+
+
     if (markerState == null || (markerState?.size ?: 0) == 0) {
         Column(
-            modifier = Modifier.fillMaxSize().background(myViewModel.myColor2),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(myViewModel.myColor2),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -96,8 +114,8 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
                 .fillMaxSize()
                 .background(myViewModel.myColor2)
         ) {
-            items(myViewModel.markerList.value?.size ?: 0) { index ->
-                val currentMarker = markerState?.getOrNull(index)
+            items(myViewModel.filteredMarkers.value!!.size) { index ->
+                val currentMarker = myViewModel.filteredMarkers.value?.getOrNull(index)
                 if (currentMarker != null) {
                     MarkerItem(
                         marker = currentMarker,
