@@ -78,10 +78,11 @@ class ViewModel: ViewModel() {
         currentList?.add(photo)
     }
 
-    fun removeMarker(markerInfo: MarkerInfo) {
+    fun removeMarker(marker: MarkerInfo) {
         val currentList = _markerList.value?.toMutableList()
-        currentList?.remove(markerInfo)
+        currentList?.remove(marker)
         _markerList.value = currentList
+        repository.deleteMarker(marker.markerId) // Borra en Firebase
     }
 
     fun changePopUpVisibility(value: Boolean) {
@@ -116,7 +117,7 @@ class ViewModel: ViewModel() {
         val currentMarkers = _markerList.value ?: mutableListOf()
         currentMarkers.add(marker)
         _markerList.value = currentMarkers
-        repository.addMarker(marker) // Guardar en Firebase
+        repository.addMarker(marker) // Guarda en Firebase
     }
     fun getMarkers(userId: String) {
         repository.getMarkers()
@@ -155,10 +156,6 @@ class ViewModel: ViewModel() {
                 Log.d("UserRepository", "Current dat: null")
             }
         }
-    }
-
-    fun deleteMarker(markerId: String) {
-        repository.deleteMarker(markerId)
     }
 
 

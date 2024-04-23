@@ -1,5 +1,6 @@
 package com.example.mapsapp.firebase
 
+import android.util.Log
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.model.UserModel
 import com.google.firebase.firestore.CollectionReference
@@ -31,7 +32,15 @@ class Repo {
     }
 
     fun deleteMarker(markerId: String) {
-        database.collection("markers").document(markerId).delete()
+        database.collection("markers").whereEqualTo("markerId", markerId).get()
+            .addOnSuccessListener { markers ->
+                for (marker in markers) {
+                    database.collection("markers").document(marker.id).delete()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("Error", "Error getting documents: ", exception)
+            }
     }
 
     fun getMarkers(): CollectionReference {

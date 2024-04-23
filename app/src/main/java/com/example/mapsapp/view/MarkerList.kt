@@ -190,7 +190,6 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                         }
                         Button(
                             onClick = {
-                                // TODO: Eliminar el marcador del Firestore también
                                 myViewModel.removeMarker(marker)
                             },
                             colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
