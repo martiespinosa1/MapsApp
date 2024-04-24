@@ -225,16 +225,11 @@ class ViewModel: ViewModel() {
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         _goToNext.value = true
-                    } else {
-                        Log.d("Error", "Error creating user: ${task.exception?.message}")
-                        _goToNext.value = false
-                        _registerFail.value = true
+                        modifyProcessing()
                     }
-                    modifyProcessing()
                 }
                 .addOnFailureListener { exception ->
                     Log.e("Error", "Authentication failed", exception)
-                    _goToNext.value = false
                     _registerFail.value = true
                     modifyProcessing()
                 }
@@ -253,19 +248,14 @@ class ViewModel: ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _userId.value = task.result?.user?.uid
-                    _actualUserName.value = task.result?.user?.email?.split("@")?.get(0)
+                    if (_actualUserName.value == "") { _actualUserName.value = task.result?.user?.email?.split("@")?.get(0) }
                     _goToNext.value = true
                     //getMarkers(_userId.value ?: "")
-                } else {
-                    Log.d("Error", "Error login in: ${task.exception?.message}")
-                    _goToNext.value = false
-                    _loginFail.value = true
+                    modifyProcessing()
                 }
-                modifyProcessing()
             }
             .addOnFailureListener { exception ->
                 Log.e("Error", "Authentication failed", exception)
-                _goToNext.value = false
                 _loginFail.value = true
                 modifyProcessing()
             }

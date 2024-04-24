@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -177,14 +178,15 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                 Spacer(modifier = Modifier.weight(1f))
 
                 Button(onClick = {
-                    if (registering == true) {
+                    if (registering == true) { // SING UP
                         if (textUserPassword.value.text == textUserPasswordRepeat.value.text) {
+                            myViewModel.actualUserName.value = textUserName.value.text
                             myViewModel.register(
                                 textUserEmail.value.text,
                                 textUserPassword.value.text
                             )
                         }
-                    } else {
+                    } else { // LOG IN
                         myViewModel.login(textUserEmail.value.text, textUserPassword.value.text)
                     }
                     if (rememberUser) { CoroutineScope(Dispatchers.IO).launch { userPrefs.saveUserData(textUserName.value.text, textUserPassword.value.text) } }

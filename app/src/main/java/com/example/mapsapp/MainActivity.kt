@@ -288,7 +288,7 @@ fun MyScaffold(myViewModel: ViewModel, state: DrawerState, navController: NavCon
     val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
-        topBar = { MyTopAppBar(myViewModel, state, navController) },
+        topBar = { if (navController.currentDestination?.route != Routes.Launch.route && navController.currentDestination?.route != Routes.Login.route) { MyTopAppBar(myViewModel, state, navController) } },
         bottomBar = { },
         content = { paddingValues ->
             Box(
