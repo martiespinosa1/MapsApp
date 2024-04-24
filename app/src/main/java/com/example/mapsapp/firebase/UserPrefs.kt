@@ -1,6 +1,7 @@
 package com.example.mapsapp.firebase
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -14,23 +15,24 @@ class UserPrefs(private val context: Context) {
     // Create a datastore
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
-        val STORE_USERNAME = stringPreferencesKey("store_username")
+        val STORE_USERMAIL = stringPreferencesKey("store_username")
         val STORE_USERPASS = stringPreferencesKey("store_userpass")
     }
 
     // Get the user data
     val getUserData: Flow<List<String>> = context.dataStore.data.map { prefs ->
         listOf(
-            prefs[STORE_USERNAME] ?: "",
+            prefs[STORE_USERMAIL] ?: "",
             prefs[STORE_USERPASS] ?: ""
         )
     }
 
     // Save the user data
-    suspend fun saveUserData(username: String, userpass: String) {
+    suspend fun saveUserData(email: String, userpass: String) {
         context.dataStore.edit { prefs ->
-            prefs[STORE_USERNAME] = username
+            prefs[STORE_USERMAIL] = email
             prefs[STORE_USERPASS] = userpass
         }
+        Log.d("UserPrefs", "Saved user data: Mail=${email}, Pass=${userpass}")
     }
 }

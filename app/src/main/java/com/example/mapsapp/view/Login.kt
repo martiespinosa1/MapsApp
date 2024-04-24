@@ -1,5 +1,6 @@
 package com.example.mapsapp.view
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -84,6 +85,12 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
         myViewModel.modifyProcessing()
         myViewModel.login(storeUserData.value[0], storeUserData.value[1])
         navController.navigate(Routes.Map.route)
+    }
+    if (rememberUser) {
+        Log.d("UserPrefs", "Saving user data")
+        CoroutineScope(Dispatchers.IO).launch {
+            userPrefs.saveUserData(textUserEmail.value.text, textUserPassword.value.text)
+        }
     }
 
     Column(
