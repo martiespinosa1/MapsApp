@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 
 class UserPrefs(private val context: Context) {
 
@@ -34,5 +35,15 @@ class UserPrefs(private val context: Context) {
             prefs[STORE_USERPASS] = userpass
         }
         Log.d("UserPrefs", "Saved user data: Mail=${email}, Pass=${userpass}")
+    }
+
+    // Delete the user data
+    fun deleteUserData(context: Context) {
+        runBlocking {
+            context.dataStore.edit { prefs ->
+                prefs[STORE_USERMAIL] = ""
+                prefs[STORE_USERPASS] = ""
+            }
+        }
     }
 }

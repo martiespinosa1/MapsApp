@@ -71,22 +71,27 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
 
     val registering by myViewModel.registering.observeAsState()
 
-    var rememberUser by remember { mutableStateOf(false) }
+    //var rememberUser by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val userPrefs = UserPrefs(context)
-    val storeUserData = userPrefs.getUserData.collectAsState(initial = emptyList())
+    var storeUserData = userPrefs.getUserData.collectAsState(initial = emptyList())
 
     if (storeUserData.value.isNotEmpty() && storeUserData.value[0] != "" && storeUserData.value[1] != "") {
         myViewModel.modifyProcessing()
         myViewModel.login(storeUserData.value[0], storeUserData.value[1])
         navController.navigate(Routes.Map.route)
     }
-    if (rememberUser) {
+    if (myViewModel.rememberUser.value == true) {
         Log.d("UserPrefs", "Saving user data")
         CoroutineScope(Dispatchers.IO).launch {
             userPrefs.saveUserData(textUserEmail.value.text, textUserPassword.value.text)
         }
     }
+    // PARA PODER HACER LOGOUT Y CAMBIAR DE USER UNA VEZ LE HAS DADO A REMEMBER ME
+    /*else {
+        userPrefs.deleteUserData(context)
+        storeUserData = userPrefs.getUserData.collectAsState(initial = emptyList())
+    }*/
 
     Column(
         modifier = Modifier
@@ -167,8 +172,8 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "Remember me", fontFamily = myViewModel.myFontFamily, color = Color.White, style = TextStyle(fontSize = 12.sp))
                     Checkbox(
-                        checked = rememberUser,
-                        onCheckedChange = { rememberUser = it },
+                        checked = myViewModel.rememberUser.value ?: false,
+                        onCheckedChange = { myViewModel.rememberUser.value = it },
                         modifier = Modifier.padding(end = 8.dp),
                         colors = CheckboxDefaults.colors(checkedColor = myViewModel.myColor2, checkmarkColor = myViewModel.myColor1)
                     )
@@ -188,7 +193,7 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                     } else { // LOG IN
                         myViewModel.login(textUserEmail.value.text, textUserPassword.value.text)
                     }
-                    if (rememberUser) { CoroutineScope(Dispatchers.IO).launch { userPrefs.saveUserData(textUserName.value.text, textUserPassword.value.text) } }
+                    if (myViewModel.rememberUser.value == true) { CoroutineScope(Dispatchers.IO).launch { userPrefs.saveUserData(textUserName.value.text, textUserPassword.value.text) } }
                     if (myViewModel.goToNext.value == true) { navController.navigate(Routes.Map.route) }
                 },
                     modifier = Modifier.width(300.dp),

@@ -226,6 +226,9 @@ class ViewModel: ViewModel() {
     private var _registering: MutableLiveData<Boolean> = MutableLiveData(false)
     var registering = _registering
 
+    private var _rememberUser: MutableLiveData<Boolean> = MutableLiveData(false)
+    var rememberUser = _rememberUser
+
     fun register(email: String?, password: String?) {
         if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             auth.createUserWithEmailAndPassword(email ?: "", password ?: "")
@@ -288,8 +291,11 @@ class ViewModel: ViewModel() {
     }
 
     fun logout() {
+        _rememberUser.value = false
         auth.signOut()
     }
+
+
 
     fun modifyProcessing() {
         _showCircularProgressBar.value = _showCircularProgressBar.value != true
