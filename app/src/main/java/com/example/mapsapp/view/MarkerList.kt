@@ -1,10 +1,5 @@
 package com.example.mapsapp.view
 
-import android.Manifest
-import android.app.Activity
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,10 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,85 +16,52 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.example.mapsapp.model.MarkerInfo
-import com.example.mapsapp.viewmodel.ViewModel
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
-import com.bumptech.glide.integration.compose.GlideImage
-import com.example.mapsapp.navigation.Routes
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mapsapp.R
-import com.google.android.gms.maps.model.LatLng
+import com.example.mapsapp.model.MarkerInfo
+import com.example.mapsapp.navigation.Routes
+import com.example.mapsapp.viewmodel.ViewModel
 
 @Composable
 fun MarkerList(myViewModel: ViewModel, navController: NavController) {
     val markerState by myViewModel.markerList.observeAsState()
     if (markerState?.size == 0) myViewModel.lastKnownLocation = null
-    val context = LocalContext.current
-    val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
-    val shouldShowPermissionRationale by myViewModel.shouldShowPermissionRationale.observeAsState(false)
+
     val showPermissionDenied by myViewModel.showPermissionDenied.observeAsState(false)
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted) {
-                myViewModel.setCameraPermissionGranted(true)
-            } else {
-                myViewModel.setShouldShowPermissionRationale(
-                    ActivityCompat.shouldShowRequestPermissionRationale(
-                        context as Activity,
-                        Manifest.permission.CAMERA
-                    )
-                )
-                if (!shouldShowPermissionRationale) {
-                    Log.i("Camera", "No podemos volver a pedir permisos")
-                    myViewModel.setShowPermissionDenied(true)
-                }
-            }
-        }
-    )
+
     if (showPermissionDenied) {
         PermisionDeclinedScreen()
     }
 
-
-
     val filteredMarkers by myViewModel.filteredMarkers.observeAsState()
-
     if (myViewModel.filterType.value == "" || myViewModel.filterType.value == "All") {
         myViewModel.filteredMarkers.value = myViewModel.markerList.value!!
     } else if (myViewModel.filterType.value == "Other") {
@@ -113,8 +73,6 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
             myViewModel.filteredMarkers.value = filteredMarkers.toMutableList()
         }
     }
-
-
 
     if (markerState == null || (markerState?.size ?: 0) == 0) {
         Column(
@@ -145,7 +103,6 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable

@@ -54,9 +54,6 @@ class ViewModel: ViewModel() {
     var isPopupVisible = _isPopupVisible
 
 
-    var showOverlay = MutableLiveData(false)
-
-
     private val _cameraPermissionGrented = MutableLiveData(false)
     val cameraPermissionGrented = _cameraPermissionGrented
 
@@ -78,9 +75,14 @@ class ViewModel: ViewModel() {
         _showPermissionDenied.value = denied
     }
 
-    fun addPhoto(photo: String, markerInfo: MarkerInfo) {
-        val currentList = markerInfo.photos
+    fun addPhoto(photo: String, marker: MarkerInfo) {
+        val currentList = marker.photos
         currentList?.add(photo)
+        updateMarkerPhotos(marker, photo)
+    }
+
+    fun updateMarkerPhotos(marker: MarkerInfo, photo: String) {
+        repository.editMarker2(marker) // Edita en Firebase
     }
 
     fun removeMarker(marker: MarkerInfo) {

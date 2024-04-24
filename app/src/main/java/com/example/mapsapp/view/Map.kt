@@ -3,7 +3,6 @@ package com.example.mapsapp.view
 import android.annotation.SuppressLint
 import android.location.Location
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import com.example.mapsapp.MainActivity
 import com.example.mapsapp.R
@@ -32,7 +30,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -54,9 +51,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
         val context = LocalContext.current
         val fusedLocationProviderClient = remember { LocationServices.getFusedLocationProviderClient(context) }
         var lastKnownLocation by remember { mutableStateOf<Location?>(null) }
-        //var deviceLatLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
         var cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(myViewModel.deviceLatLng.value!!, 18f) }
-        //val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
         // Obtener la ubicación actual solo si lastKnownLocation es null
         if (lastKnownLocation == null) {
             val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
@@ -74,8 +69,6 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             cameraPositionState.position = CameraPosition.Builder().target(LatLng(myViewModel.currentMarker.latitude, myViewModel.currentMarker.longitude)).zoom(18f).build()
         }
 
-
-
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
@@ -89,7 +82,6 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             ),
             onMapLongClick = { coordinates ->
                 setPopupCoordinates(coordinates)
-                //myViewModel.deviceLatLng.value = coordinates
                 myViewModel.changePopUpVisibility(true)
             }
         ) {
@@ -109,17 +101,12 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             AddMarker(myViewModel, navController,
                 onDismiss = { myViewModel.changePopUpVisibility(false) },
                 onTextFieldSubmitted = { name, type, photos ->
-                    //val currentMarkers = myViewModel.markerList.value ?: mutableListOf()
                     val newMarker = MarkerInfo(name = name, latitude = popupCoordinates.latitude, longitude = popupCoordinates.longitude, type = type, photos = photos, userId = myViewModel.userId.value)
-                    //currentMarkers.add(newMarker)
-                    //myViewModel.markerList.value = currentMarkers
                     myViewModel.addMarker(newMarker)
                     myViewModel.changePopUpVisibility(false)
-                    //saveMarkerToFirebase(newMarker)
                 }
             )
         }
-
         Box(
             modifier = Modifier
                 .padding(16.dp)
@@ -133,6 +120,5 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
                     }
             )
         }
-
     }
 }

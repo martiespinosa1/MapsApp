@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -78,28 +77,7 @@ fun AddMarker(
     val typeChoosed = rememberSaveable { mutableStateOf("Type") }
 
     val context = LocalContext.current
-    val isCameraPermissionGranted by myViewModel.cameraPermissionGrented.observeAsState(false)
-    val shouldShowPermissionRationale by myViewModel.shouldShowPermissionRationale.observeAsState(false)
     val showPermissionDenied by myViewModel.showPermissionDenied.observeAsState(false)
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            myViewModel.setCameraPermissionGranted(true)
-            navController.navigate(Routes.TakePhoto.route)
-        } else {
-            myViewModel.setShouldShowPermissionRationale(
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    context as Activity,
-                    Manifest.permission.CAMERA
-                )
-            )
-            if (!shouldShowPermissionRationale) {
-                Log.i("Camera", "No podemos volver a pedir permisos")
-                myViewModel.setShowPermissionDenied(true)
-            }
-        }
-    }
 
     val img: Bitmap? = ContextCompat.getDrawable(context, R.drawable.empty_image)?.toBitmap()
     var bitmap by remember { mutableStateOf(img) }
@@ -127,7 +105,6 @@ fun AddMarker(
         }
     )
 
-
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Surface(
             modifier = Modifier
@@ -140,7 +117,6 @@ fun AddMarker(
                     fontSize = 32.sp,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-
                 Row {
                     TextField(
                         value = textFieldValue,
@@ -235,18 +211,17 @@ fun AddMarker(
                             val photoUri = Uri.parse(photoUriString)
                             myViewModel.uploadImage(photoUri)
                         }
-                        // Limpia la lista de fotos en tránsito después de subirlas
-                        myViewModel.photosInTransit.value = mutableListOf()
                         // Continúa con la lógica de guardar el marcador
                         onTextFieldSubmitted(textFieldValue, typeChoosed.value, myViewModel.photosInTransit.value)
                         onDismiss()
+                        // Limpia la lista de fotos en tránsito después de subirlas
+                        myViewModel.photosInTransit.value = mutableListOf()
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
                 ) {
                     Text("Save", fontFamily = myViewModel.myFontFamily)
                 }
-
             }
             if (showPermissionDenied) {
                 PermisionDeclinedScreen()
@@ -254,7 +229,6 @@ fun AddMarker(
         }
     }
 }
-
 
 @Composable
 fun PermisionDeclinedScreen() {
@@ -278,9 +252,4 @@ fun openAppSettings(activity: Activity) {
         data = Uri.fromParts("package", activity.packageName, null)
         flags = Intent.FLAG_ACTIVITY_NEW_TASK
     }
-}
-
-fun saveMarkerToFirebase(marker: MarkerInfo) {
-    val repo = Repo()
-    repo.addMarker(marker)
 }
