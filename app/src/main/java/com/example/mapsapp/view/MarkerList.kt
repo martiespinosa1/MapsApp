@@ -47,6 +47,7 @@ import com.example.mapsapp.navigation.Routes
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.mapsapp.R
 import com.google.android.gms.maps.model.LatLng
@@ -106,7 +107,7 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "No markers yet")
+            Text(text = "No markers yet", color = Color.White)
         }
     } else {
         LazyColumn(
@@ -168,7 +169,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                         Text(
                             text = marker.name,
                             fontSize = 23.sp,
-                            fontWeight = FontWeight.Bold
+                            color = Color.White
                         )
                     }
                     Spacer(modifier = Modifier.size(4.dp))
@@ -176,7 +177,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                         Text(
                             text = marker.type,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
+                            color = Color.White
                         )
                     }
                     Spacer(modifier = Modifier.size(12.dp))

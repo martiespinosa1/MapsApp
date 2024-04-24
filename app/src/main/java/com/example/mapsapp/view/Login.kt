@@ -165,7 +165,7 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Remember me", fontFamily = myViewModel.myFontFamily, style = TextStyle(fontSize = 12.sp))
+                    Text(text = "Remember me", fontFamily = myViewModel.myFontFamily, color = Color.White, style = TextStyle(fontSize = 12.sp))
                     Checkbox(
                         checked = rememberUser,
                         onCheckedChange = { rememberUser = it },

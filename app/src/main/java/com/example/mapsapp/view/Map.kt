@@ -104,6 +104,7 @@ fun Map(myViewModel: ViewModel, navController: NavController) {
             }
         }
 
+        myViewModel.getMarkers(myViewModel.userId.value ?: "")
         if (isPopupVisible == true) {
             AddMarker(myViewModel, navController,
                 onDismiss = { myViewModel.changePopUpVisibility(false) },

@@ -255,7 +255,7 @@ class ViewModel: ViewModel() {
                     _userId.value = task.result?.user?.uid
                     _actualUserName.value = task.result?.user?.email?.split("@")?.get(0)
                     _goToNext.value = true
-                    getMarkers(_userId.value ?: "")
+                    //getMarkers(_userId.value ?: "")
                 } else {
                     Log.d("Error", "Error login in: ${task.exception?.message}")
                     _goToNext.value = false
