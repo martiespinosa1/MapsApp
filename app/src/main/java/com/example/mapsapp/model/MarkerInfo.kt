@@ -3,7 +3,7 @@ package com.example.mapsapp.model
 import java.util.UUID
 
 data class MarkerInfo(
-    val name: String,
+    var name: String,
     var latitude: Double,
     var longitude: Double,
     val type: String,

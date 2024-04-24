@@ -124,6 +124,11 @@ class ViewModel: ViewModel() {
         _markerList.value = currentMarkers
         repository.addMarker(marker) // Guarda en Firebase
     }
+
+    fun editMarker(marker: MarkerInfo) {
+        repository.editMarker(marker) // Edita en Firebase
+    }
+
     fun getMarkers(userId: String) {
         repository.getMarkers()
             .whereEqualTo("userId", userId)

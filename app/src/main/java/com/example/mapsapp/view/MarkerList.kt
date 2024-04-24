@@ -12,14 +12,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
@@ -43,8 +47,14 @@ import androidx.navigation.NavController
 import com.example.mapsapp.model.MarkerInfo
 import com.example.mapsapp.viewmodel.ViewModel
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import com.bumptech.glide.integration.compose.GlideImage
@@ -140,6 +150,9 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: ViewModel) {
+    var editingMode by remember { mutableStateOf(false) }
+    var editTextField by remember { mutableStateOf(marker.name) }
+
     Card(
         onClick = {
             navController.navigate(Routes.Map.route) {
@@ -172,12 +185,39 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    if (marker.name != "") {
+                    if (!editingMode) {
                         Text(
-                            text = marker.name,
+                            text = editTextField,
                             fontSize = 23.sp,
                             color = Color.White
                         )
+                    } else {
+                        Row {
+                            TextField(
+                                value = editTextField,
+                                onValueChange = { editTextField = it },
+                                modifier = Modifier
+                                    .fillMaxWidth(0.7f)
+                                    .clip(RoundedCornerShape(32.dp)),
+                                colors = TextFieldDefaults.textFieldColors(
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                )
+                            )
+                            Spacer(modifier = Modifier.size(12.dp))
+                            Button(
+                                onClick = {
+                                    editingMode = false
+                                    if (editTextField != marker.name) {
+                                        marker.name = editTextField
+                                        myViewModel.editMarker(marker)
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
+                            ) {
+                                Icon(Icons.Default.Check, contentDescription = "Check", tint = Color.White)
+                            }
+                        }
                     }
                     Spacer(modifier = Modifier.size(4.dp))
                     if (marker.type != "Type") {
@@ -201,7 +241,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         Button(
-                            onClick = { },
+                            onClick = { editingMode = true },
                             colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
                         ) {
                             Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.White)

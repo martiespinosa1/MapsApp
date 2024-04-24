@@ -28,8 +28,13 @@ class Repo {
     }
 
     fun editMarker(editedMarker: MarkerInfo) {
-
+        val markerData = mapOf(
+            "name" to editedMarker.name
+        )
+        database.collection("markers").document(editedMarker.userId!!)
+            .update(markerData)
     }
+
 
     fun deleteMarker(markerId: String) {
         database.collection("markers").whereEqualTo("markerId", markerId).get()
