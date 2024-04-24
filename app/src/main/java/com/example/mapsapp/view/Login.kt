@@ -178,7 +178,7 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
 
                 Button(onClick = {
                     if (registering == true) {
-                        if (textUserPassword == textUserPasswordRepeat) {
+                        if (textUserPassword.value.text == textUserPasswordRepeat.value.text) {
                             myViewModel.register(
                                 textUserEmail.value.text,
                                 textUserPassword.value.text
@@ -207,11 +207,12 @@ fun LogIn(myViewModel: ViewModel, navController: NavController) {
         }
 
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = if (registering == true) "Already have an account? " else "Don't have an account? ", fontSize = 12.sp)
+            Text(text = if (registering == true) "Already have an account? " else "Don't have an account? ", color = Color.White, fontSize = 12.sp)
             Text(
                 text = if (registering == true) "Log in" else "Sign up",
                 textDecoration = TextDecoration.Underline,
                 fontSize = 12.sp,
+                color = Color.White,
                 modifier = Modifier
                     .clickable {
                         myViewModel.registering.value = !myViewModel.registering.value!!

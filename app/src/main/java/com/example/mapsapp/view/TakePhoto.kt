@@ -26,9 +26,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.PhotoCamera
@@ -121,13 +123,13 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceAround,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.DarkGray)
+                            .background(myViewModel.myColor2)
                     ) {
                         IconButton(onClick = {
                             myViewModel.changeTakePhotoFromCreateMarker(false)
                             navController.popBackStack()
                         }) {
-                            Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Go back")
+                            Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Go back", tint = Color.White)
                         }
                         IconButton(onClick = {
                             controller.cameraSelector =
@@ -137,12 +139,12 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                                     CameraSelector.DEFAULT_BACK_CAMERA
                                 }
                         }) {
-                            Icon(imageVector = Icons.Default.Cameraswitch, contentDescription = "Switch camera")
+                            Icon(imageVector = Icons.Default.Cameraswitch, contentDescription = "Switch camera", tint = Color.White)
                         }
                         IconButton(onClick = {
                             launchImage.launch("image/*")
                         }) {
-                            Icon(imageVector = Icons.Default.Photo, contentDescription = "Open gallery")
+                            Icon(imageVector = Icons.Default.Photo, contentDescription = "Open gallery", tint = Color.White)
                         }
                     }
 
@@ -189,8 +191,10 @@ fun TakePhoto(myViewModel: ViewModel, navController: NavController) {
                             )
                         ) {
                             Icon(
-                                imageVector = Icons.Default.PhotoCamera,
-                                contentDescription = "Take photo"
+                                imageVector = Icons.Default.Camera,
+                                contentDescription = "Take photo",
+                                tint = myViewModel.myColor1,
+                                modifier = Modifier.size(150.dp)
                             )
                         }
                     }

@@ -20,7 +20,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -85,10 +90,12 @@ fun MarkerList(myViewModel: ViewModel, navController: NavController) {
 
 
 
+    val filteredMarkers by myViewModel.filteredMarkers.observeAsState()
+
     if (myViewModel.filterType.value == "" || myViewModel.filterType.value == "All") {
         myViewModel.filteredMarkers.value = myViewModel.markerList.value!!
     } else if (myViewModel.filterType.value == "Other") {
-        myViewModel.getMarkersOfAType(myViewModel.userId.value ?: "", "") { filteredMarkers ->
+        myViewModel.getMarkersOfAType(myViewModel.userId.value ?: "", "Type") { filteredMarkers ->
             myViewModel.filteredMarkers.value = filteredMarkers.toMutableList()
         }
     } else {
@@ -180,6 +187,7 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                             color = Color.White
                         )
                     }
+
                     Spacer(modifier = Modifier.size(12.dp))
                     Row {
                         Button(
@@ -189,31 +197,23 @@ fun MarkerItem(marker: MarkerInfo, navController: NavController, myViewModel: Vi
                             },
                             colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
                         ) {
-                            Text("Camera", fontFamily = myViewModel.myFontFamily)
+                            Icon(Icons.Default.PhotoCamera, contentDescription = "Camera", tint = Color.White)
                         }
+                        Spacer(modifier = Modifier.weight(1f))
                         Button(
                             onClick = { },
                             colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
                         ) {
-                            Text("Gallery", fontFamily = myViewModel.myFontFamily)
+                            Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.White)
                         }
-                    }
-
-                    Spacer(modifier = Modifier.size(12.dp))
-                    Row {
-                        Button(
-                            onClick = { },
-                            colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
-                        ) {
-                            Text("Edit", fontFamily = myViewModel.myFontFamily)
-                        }
+                        Spacer(modifier = Modifier.weight(1f))
                         Button(
                             onClick = {
                                 myViewModel.removeMarker(marker)
                             },
                             colors = ButtonDefaults.buttonColors(myViewModel.myColor2, Color.White)
                         ) {
-                            Text("Delete", fontFamily = myViewModel.myFontFamily)
+                            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
                         }
                     }
                 }
